@@ -4,6 +4,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 // import { showSubmittedData } from '@/lib/show-submitted-data'
+import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
+import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -44,12 +47,28 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    console.log('🚀 ~ onSubmit ~ data:', data)
-
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate({ to: '/' })
-    }, 1000)
+    toast.promise(
+      authClient.twoFactor.verifyOtp(
+        {
+          code: data.otp,
+          trustDevice: true,
+        },
+        {
+          onSuccess: () => {
+            navigate({ to: '/' })
+          },
+          onError: (ctx) => {
+            form.setError('otp', { message: ctx.error.message })
+            setIsLoading(false)
+          },
+        },
+      ),
+      {
+        loading: 'Verifying OTP...',
+        success: 'OTP Verified!',
+        error: (err) => err.error.message || 'Invalid OTP',
+      },
+    )
   }
 
   return (
@@ -92,7 +111,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
           )}
         />
         <Button className="mt-2" disabled={otp.length < 6 || isLoading}>
-          Verify
+          {isLoading ? <Loader2 className="animate-spin" /> : 'Verify'}
         </Button>
       </form>
     </Form>

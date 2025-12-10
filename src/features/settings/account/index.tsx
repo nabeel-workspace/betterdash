@@ -1,6 +1,8 @@
 import { ContentSection } from '../components/content-section'
 import { AccountForm } from './account-form'
 
+import { TwoFactorSwitch } from './components/two-factor-switch'
+
 export function SettingsAccount() {
   return (
     <ContentSection
@@ -8,7 +10,10 @@ export function SettingsAccount() {
       desc="Update your account settings. Set your preferred language and
           timezone."
     >
-      <AccountForm />
+      <>
+        <AccountForm />
+        <TwoFactorSwitch />
+      </>
     </ContentSection>
   )
 }
