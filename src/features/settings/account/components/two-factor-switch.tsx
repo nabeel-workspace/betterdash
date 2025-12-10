@@ -59,9 +59,8 @@ export function TwoFactorSwitch() {
       const res = await authClient.twoFactor.enable({
         password,
       })
-      console.log('🚀 ~ handleEnable2FA ~ res:', res)
-
       if (res.data?.totpURI) {
+        setBackupCodes(res.data.backupCodes)
         setTotpUri(res.data.totpURI)
         setStep('qr')
       } else {
@@ -78,57 +77,31 @@ export function TwoFactorSwitch() {
     if (verificationCode.length < 6) return
     setIsLoading(true)
     try {
-      const res = await authClient.twoFactor.verifyOtp({
+      const res = await authClient.twoFactor.verifyTotp({
         code: verificationCode,
         trustDevice: true,
       })
-      console.log('🚀 ~ handleVerifyOtp ~ res:', res)
-
-      // @ts-ignore - backupCodes might not be in typed definition if implied
-      if (res.data?.backupCodes) {
-        // @ts-ignore
-        setBackupCodes(res.data.backupCodes)
+      if (res.data?.token) {
         setStep('backup')
         toast.success('2FA Enabled Successfully')
       } else {
         toast.error('Failed to enable 2FA')
       }
     } catch (e: any) {
-      toast.error(e.message || 'Invalid Code')
+      if (e?.code === 'OTP_HAS_EXPIRED' || e?.message === 'OTP has expired') {
+        toast.error('The code has expired. Please wait for a new one.')
+      } else {
+        toast.error(e.message || 'Invalid Code')
+      }
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleDisable2FA = async () => {
-    // Basic prompt for now
-    const userPassword = prompt('Please confirm your password to disable 2FA')
-    if (!userPassword) return
-
-    try {
-      await authClient.twoFactor.disable({ password: userPassword })
-      toast.success('2FA Disabled')
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to disable 2FA')
-    }
-  }
-
   if (!session) return null
 
-  if (session.user.twoFactorEnabled) {
-    return (
-      <div className="flex items-center justify-between rounded-lg border p-4 mt-4">
-        <div className="space-y-0.5">
-          <Label className="text-base">Two-factor Authentication</Label>
-          <p className="text-muted-foreground text-sm">
-            Two-factor authentication is enabled.
-          </p>
-        </div>
-        <Button variant="destructive" onClick={handleDisable2FA}>
-          Disable 2FA
-        </Button>
-      </div>
-    )
+  if (session.user.twoFactorEnabled && step !== 'backup') {
+    return <TwoFactorDisable />
   }
 
   return (
@@ -179,9 +152,6 @@ export function TwoFactorSwitch() {
               />
 
               <Separator />
-              {/* show secrate if user cant scan qr code */}
-              {/* "otpauth://totp/BetterDash:muhammad.nabeel.nisar.workspace%40gmail.com?secret=sads87d89sad78sa7d=&issuer=BetterDash&digits=6&period=30"
-               */}
               {totpUri ? (
                 <p className="text-center text-sm">
                   If you can't scan the QR code, <br /> you can use the secret
@@ -243,7 +213,7 @@ export function TwoFactorSwitch() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  navigator.clipboard.writeText(backupCodes.join('\n'))
+                  navigator.clipboard.writeText(backupCodes.join(' | '))
                   toast.success('Copied to clipboard')
                 }}
               >
@@ -255,6 +225,7 @@ export function TwoFactorSwitch() {
           <DialogFooter>
             {step === 'password' && (
               <Button
+                className="w-full"
                 onClick={handleEnable2FA}
                 disabled={isLoading || !password}
               >
@@ -273,7 +244,12 @@ export function TwoFactorSwitch() {
               </Button>
             )}
             {step === 'backup' && (
-              <Button onClick={() => setIsDialogOpen(false)}>Done</Button>
+              <Button
+                className="w-full"
+                onClick={() => handleOpenChange(false)}
+              >
+                Done
+              </Button>
             )}
           </DialogFooter>
         </DialogContent>
@@ -282,15 +258,88 @@ export function TwoFactorSwitch() {
   )
 }
 
-// "otpauth://totp/BetterDash:muhammad.nabeel.nisar.workspace%40gmail.com?secretsads87d89sad78sa7d=&issuer=BetterDash&digits=6&period=30"
+export function TwoFactorDisable() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-// 0 : "F3vQw-qSFzz"
-// 1 : "Y4VoH-Dd7K2"
-// 2 : "le9G8-X5wAJ"
-// 3 : "T1SE6-6HgkB"
-// 4 : "h3hKs-TYGpG"
-// 5 : "hBPQy-C5kTW"
-// 6 : "PqKTU-DlA9j"
-// 7 : "995HK-M3W4z"
-// 8 : "EFfdH-tTqEi"
-// 9 : "XGDwB-nlOt4"
+  const resetState = () => {
+    setPassword('')
+    setIsLoading(false)
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    setIsDialogOpen(open)
+    if (!open) {
+      resetState()
+    }
+  }
+
+  const handleDisable2FA = async () => {
+    if (!password) {
+      toast.error('Password is required')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      await authClient.twoFactor.disable({ password })
+      toast.success('2FA Disabled')
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to enable 2FA')
+    } finally {
+      handleOpenChange(false)
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between rounded-lg border p-4 mt-4">
+      <div className="space-y-0.5">
+        <Label className="text-base">Two-factor Authentication</Label>
+        <p className="text-muted-foreground text-sm">
+          Two-factor authentication is enabled.
+        </p>
+      </div>
+      <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+        <DialogTrigger asChild>
+          <Button variant="destructive" onClick={handleDisable2FA}>
+            Disable 2FA
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Disable Two-Factor Authentication</DialogTitle>
+            <DialogDescription>
+              Please enter your password to continue.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+
+              <PasswordInput
+                id="password"
+                value={password}
+                placeholder="********"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              className="w-full"
+              variant="destructive"
+              onClick={handleDisable2FA}
+              disabled={isLoading || !password}
+            >
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Disable 2FA
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
