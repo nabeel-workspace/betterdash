@@ -21,9 +21,9 @@ import {
 } from '@/components/ui/input-otp'
 import { PasswordInput } from '@/components/password-input'
 import { Separator } from '@/components/ui/separator'
+import { SessionProps } from '..'
 
-export function TwoFactorSwitch() {
-  const { data: session } = authClient.useSession()
+export function TwoFactorSwitch({ session }: SessionProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [password, setPassword] = useState('')
   const [totpUri, setTotpUri] = useState<string | null>(null)

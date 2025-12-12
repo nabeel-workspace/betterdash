@@ -23,6 +23,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { format } from 'date-fns'
+import { SessionProps } from '..'
 
 interface Passkey {
   id: string
@@ -30,8 +31,7 @@ interface Passkey {
   createdAt: Date
 }
 
-export function PasskeySettings() {
-  const { data: session } = authClient.useSession()
+export function PasskeySettings({ session }: SessionProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [passkeyName, setPasskeyName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
