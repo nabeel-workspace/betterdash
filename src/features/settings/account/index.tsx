@@ -2,6 +2,7 @@ import { ContentSection } from '../components/content-section'
 import { AccountForm } from './account-form'
 
 import { TwoFactorSwitch } from './components/two-factor-switch'
+import { PasskeySettings } from './components/passkey-settings'
 
 export function SettingsAccount() {
   return (
@@ -13,6 +14,7 @@ export function SettingsAccount() {
       <>
         <AccountForm />
         <TwoFactorSwitch />
+        <PasskeySettings />
       </>
     </ContentSection>
   )

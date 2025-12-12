@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { HatGlasses, Loader2, LogIn } from 'lucide-react'
+import { HatGlasses, Loader2, LogIn, SquareAsterisk } from 'lucide-react'
 import { toast } from 'sonner'
 import { IconGithub } from '@/assets/brand-icons'
 import { cn } from '@/lib/utils'
@@ -40,6 +40,9 @@ export function UserAuthForm({
   ...props
 }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [loading, setLoading] = useState<
+    'email' | 'social' | 'passkey' | 'anonymous' | null
+  >(null)
   const navigate = useNavigate()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,9 +58,11 @@ export function UserAuthForm({
       authClient.signIn.email(data, {
         onRequest: () => {
           setIsLoading(true)
+          setLoading('email')
         },
         onResponse: () => {
           setIsLoading(false)
+          setLoading(null)
         },
         onSuccess: (ctx) => {
           if (ctx.data.twoFactorRedirect) {
@@ -91,9 +96,11 @@ export function UserAuthForm({
         {
           onRequest: () => {
             setIsLoading(true)
+            setLoading('social')
           },
           onResponse: () => {
             setIsLoading(false)
+            setLoading(null)
           },
           onSuccess: () => {
             navigate({ to: '/', replace: true })
@@ -112,6 +119,49 @@ export function UserAuthForm({
     )
   }
 
+  useEffect(() => {
+    if (
+      !PublicKeyCredential.isConditionalMediationAvailable ||
+      !PublicKeyCredential.isConditionalMediationAvailable()
+    ) {
+      return
+    }
+
+    void authClient.signIn.passkey({ autoFill: true })
+  }, [])
+
+  function PasskeySignIn() {
+    toast.promise(
+      authClient.signIn.passkey(
+        {
+          // autoFill: true
+        },
+        {
+          onRequest: () => {
+            setIsLoading(true)
+            setLoading('passkey')
+          },
+          onResponse: () => {
+            setIsLoading(false)
+            setLoading(null)
+          },
+          onSuccess: () => {
+            navigate({ to: '/', replace: true })
+          },
+          onError: (error) => {
+            const message = error.error.message || error.error.statusText
+            throw new Error(message)
+          },
+        },
+      ),
+      {
+        loading: `Signing in with passkey...`,
+        success: () => `Welcome back!`,
+        error: (err) => err.message || 'Something went wrong',
+      },
+    )
+  }
+
   function AnonymousSignIn() {
     toast.promise(
       authClient.signIn.anonymous(
@@ -119,9 +169,11 @@ export function UserAuthForm({
         {
           onRequest: () => {
             setIsLoading(true)
+            setLoading('anonymous')
           },
           onResponse: () => {
             setIsLoading(false)
+            setLoading(null)
           },
           onSuccess: () => {
             navigate({ to: '/', replace: true })
@@ -182,7 +234,11 @@ export function UserAuthForm({
         />
 
         <Button className="mt-2" type="submit" disabled={isLoading}>
-          {isLoading ? <Loader2 className="animate-spin" /> : <LogIn />}
+          {loading === 'email' ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <LogIn />
+          )}
           Sign in
         </Button>
 
@@ -203,7 +259,26 @@ export function UserAuthForm({
           disabled={isLoading}
           onClick={() => SocialSignIn('github')}
         >
-          <IconGithub className="h-4 w-4" /> GitHub
+          {loading === 'social' ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <IconGithub className="h-4 w-4" />
+          )}
+          Continue with GitHub
+        </Button>
+
+        <Button
+          variant="outline"
+          type="button"
+          disabled={isLoading}
+          onClick={() => PasskeySignIn()}
+        >
+          {loading === 'passkey' ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <SquareAsterisk className="h-4 w-4" />
+          )}
+          Continue with Passkey
         </Button>
 
         <Button
@@ -212,7 +287,12 @@ export function UserAuthForm({
           disabled={isLoading}
           onClick={() => AnonymousSignIn()}
         >
-          <HatGlasses className="h-4 w-4" /> Anonymous
+          {loading === 'anonymous' ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <HatGlasses className="h-4 w-4" />
+          )}
+          Continue anonymously
         </Button>
       </form>
     </Form>

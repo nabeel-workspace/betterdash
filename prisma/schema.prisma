@@ -30,6 +30,7 @@ model User {
   twoFactorEnabled Boolean?    @default(false)
   twofactors       TwoFactor[]
   isAnonymous      Boolean?    @default(false)
+  passkeys         Passkey[]
 
   @@unique([email])
   @@map("user")
@@ -91,5 +92,26 @@ model TwoFactor {
   userId      String @db.ObjectId
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([secret])
+  @@index([userId])
   @@map("twoFactor")
+}
+
+model Passkey {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String?
+  publicKey    String
+  userId       String    @db.ObjectId
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime?
+  aaguid       String?
+
+  @@index([userId])
+  @@index([credentialID])
+  @@map("passkey")
 }
