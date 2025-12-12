@@ -16,7 +16,6 @@ import {
   UserX,
   Users,
   ShieldCheck,
-  AudioWaveform,
   Command,
   GalleryVerticalEnd,
 } from 'lucide-react'
@@ -30,19 +29,14 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: 'Betterdash',
+      name: 'Admin',
       logo: Command,
-      plan: 'Vite + ShadcnUI',
+      plan: 'Admin Dashboard',
     },
     {
-      name: 'Acme Inc',
+      name: 'Dev',
       logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
+      plan: 'Dev Dashboard',
     },
   ],
   navGroups: [
@@ -59,17 +53,6 @@ export const sidebarData: SidebarData = {
           url: '/tasks',
           icon: ListTodo,
         },
-        // {
-        //   title: 'Apps',
-        //   url: '/apps',
-        //   icon: Package,
-        // },
-        // {
-        //   title: 'Chats',
-        //   url: '/chats',
-        //   badge: '3',
-        //   icon: MessagesSquare,
-        // },
         {
           title: 'Users',
           url: '/users',
