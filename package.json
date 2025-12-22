@@ -19,6 +19,7 @@
     "@better-auth/passkey": "^1.4.6",
     "@faker-js/faker": "^10.1.0",
     "@hookform/resolvers": "^5.2.2",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "@netlify/vite-plugin-tanstack-start": "^1.2.1",
     "@prisma/client": "6.4.1",
     "@radix-ui/react-alert-dialog": "^1.1.15",
