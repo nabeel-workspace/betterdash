@@ -1,6 +1,7 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
 import { getSession } from '@/server-fn/get-session'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+
+import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedLayout,

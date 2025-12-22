@@ -1,11 +1,13 @@
 import { Outlet } from '@tanstack/react-router'
-import { Monitor, Bell, Palette, Wrench, UserCog } from 'lucide-react'
+import { Bell, Monitor, Palette, UserCog, Wrench } from 'lucide-react'
+
 import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+
 import { SidebarNav } from './components/sidebar-nav'
 
 const sidebarNavItems = [

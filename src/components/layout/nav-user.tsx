@@ -7,6 +7,8 @@ import {
   LogOut,
   Sparkles,
 } from 'lucide-react'
+
+import { authClient } from '@/lib/auth-client'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -25,7 +27,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { SignOutDialog } from '@/components/sign-out-dialog'
-import { authClient } from '@/lib/auth-client'
 
 export function NavUser() {
   const { isMobile } = useSidebar()

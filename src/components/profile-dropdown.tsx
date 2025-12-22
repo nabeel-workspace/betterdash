@@ -1,4 +1,6 @@
 import { Link } from '@tanstack/react-router'
+
+import { authClient } from '@/lib/auth-client'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -13,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SignOutDialog } from '@/components/sign-out-dialog'
-import { authClient } from '@/lib/auth-client'
 
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState()

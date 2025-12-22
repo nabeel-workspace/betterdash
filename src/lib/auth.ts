@@ -1,10 +1,11 @@
-import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { getMinimalEmailHtml } from './emals'
-import { admin, twoFactor, anonymous } from 'better-auth/plugins'
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
-import { SendMail } from './resend'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { admin, anonymous, twoFactor } from 'better-auth/plugins'
+
+import { getMinimalEmailHtml } from './emals'
 import prisma from './prisma'
+import { SendMail } from './resend'
 
 const appUrl = process.env.BETTER_AUTH_URL
 

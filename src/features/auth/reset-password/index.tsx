@@ -1,4 +1,6 @@
 import { Link } from '@tanstack/react-router'
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   Card,
   CardContent,
@@ -7,9 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+
 import { AuthLayout } from '../auth-layout'
 import { ResetPasswordForm } from './components/reset-password-form'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export function ResetPassword({ token }: { token?: string }) {
   return (

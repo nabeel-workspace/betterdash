@@ -1,7 +1,8 @@
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MailPlus, Send } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+
 import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/select-dropdown'
+
 import { roles } from '../data/data'
 
 const formSchema = z.object({
@@ -65,9 +67,9 @@ export function UsersInviteDialog({
         onOpenChange(state)
       }}
     >
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader className='text-start'>
-          <DialogTitle className='flex items-center gap-2'>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader className="text-start">
+          <DialogTitle className="flex items-center gap-2">
             <MailPlus /> Invite User
           </DialogTitle>
           <DialogDescription>
@@ -77,20 +79,20 @@ export function UsersInviteDialog({
         </DialogHeader>
         <Form {...form}>
           <form
-            id='user-invite-form'
+            id="user-invite-form"
             onSubmit={form.handleSubmit(onSubmit)}
-            className='space-y-4'
+            className="space-y-4"
           >
             <FormField
               control={form.control}
-              name='email'
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      type='email'
-                      placeholder='eg: john.doe@gmail.com'
+                      type="email"
+                      placeholder="eg: john.doe@gmail.com"
                       {...field}
                     />
                   </FormControl>
@@ -100,14 +102,14 @@ export function UsersInviteDialog({
             />
             <FormField
               control={form.control}
-              name='role'
+              name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
                   <SelectDropdown
                     defaultValue={field.value}
                     onValueChange={field.onChange}
-                    placeholder='Select a role'
+                    placeholder="Select a role"
                     items={roles.map(({ label, value }) => ({
                       label,
                       value,
@@ -119,14 +121,14 @@ export function UsersInviteDialog({
             />
             <FormField
               control={form.control}
-              name='desc'
+              name="desc"
               render={({ field }) => (
-                <FormItem className=''>
+                <FormItem className="">
                   <FormLabel>Description (optional)</FormLabel>
                   <FormControl>
                     <Textarea
-                      className='resize-none'
-                      placeholder='Add a personal note to your invitation (optional)'
+                      className="resize-none"
+                      placeholder="Add a personal note to your invitation (optional)"
                       {...field}
                     />
                   </FormControl>
@@ -136,11 +138,11 @@ export function UsersInviteDialog({
             />
           </form>
         </Form>
-        <DialogFooter className='gap-y-2'>
+        <DialogFooter className="gap-y-2">
           <DialogClose asChild>
-            <Button variant='outline'>Cancel</Button>
+            <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button type='submit' form='user-invite-form'>
+          <Button type="submit" form="user-invite-form">
             Invite <Send />
           </Button>
         </DialogFooter>

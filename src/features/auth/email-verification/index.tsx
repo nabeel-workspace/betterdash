@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Link, useSearch } from '@tanstack/react-router'
-import { Mail, Loader2 } from 'lucide-react'
+import { Loader2, Mail } from 'lucide-react'
+import { toast } from 'sonner'
+
+import { authClient } from '@/lib/auth-client'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -9,10 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+
 import { AuthLayout } from '../auth-layout'
-import { authClient } from '@/lib/auth-client'
-import { toast } from 'sonner'
 
 export function EmailVerification() {
   const search = useSearch({ from: '/(auth)/email-verification' }) as {

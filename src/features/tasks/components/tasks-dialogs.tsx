@@ -1,5 +1,6 @@
 import { showSubmittedData } from '@/lib/show-submitted-data'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+
 import { TasksImportDialog } from './tasks-import-dialog'
 import { TasksMutateDrawer } from './tasks-mutate-drawer'
 import { useTasks } from './tasks-provider'
@@ -9,13 +10,13 @@ export function TasksDialogs() {
   return (
     <>
       <TasksMutateDrawer
-        key='task-create'
+        key="task-create"
         open={open === 'create'}
         onOpenChange={() => setOpen('create')}
       />
 
       <TasksImportDialog
-        key='tasks-import'
+        key="tasks-import"
         open={open === 'import'}
         onOpenChange={() => setOpen('import')}
       />
@@ -35,7 +36,7 @@ export function TasksDialogs() {
           />
 
           <ConfirmDialog
-            key='task-delete'
+            key="task-delete"
             destructive
             open={open === 'delete'}
             onOpenChange={() => {
@@ -51,10 +52,10 @@ export function TasksDialogs() {
               }, 500)
               showSubmittedData(
                 currentRow,
-                'The following task has been deleted:'
+                'The following task has been deleted:',
               )
             }}
-            className='max-w-md'
+            className="max-w-md"
             title={`Delete this task: ${currentRow.id} ?`}
             desc={
               <>
@@ -63,7 +64,7 @@ export function TasksDialogs() {
                 This action cannot be undone.
               </>
             }
-            confirmText='Delete'
+            confirmText="Delete"
           />
         </>
       )}

@@ -1,9 +1,8 @@
 import { ContentSection } from '../components/content-section'
-import { NameForm } from './components/name-form'
-
-import { TwoFactorSwitch } from './components/two-factor-switch'
-import { PasskeySettings } from './components/passkey-settings'
 import { EmailForm } from './components/email-form'
+import { NameForm } from './components/name-form'
+import { PasskeySettings } from './components/passkey-settings'
+import { TwoFactorSwitch } from './components/two-factor-switch'
 
 export type SessionProps = {
   session: {

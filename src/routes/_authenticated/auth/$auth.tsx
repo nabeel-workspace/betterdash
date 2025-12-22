@@ -1,14 +1,15 @@
+import { ForgotPassword } from '@/features/auth/forgot-password'
+import { Otp } from '@/features/auth/otp'
+import { ResetPassword } from '@/features/auth/reset-password'
+import { SignIn } from '@/features/auth/sign-in'
+import { SignIn2 } from '@/features/auth/sign-in/sign-in-2'
+import { SignUp } from '@/features/auth/sign-up'
 import { createFileRoute } from '@tanstack/react-router'
+
 import { Header } from '@/components/layout/header'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { SignIn } from '@/features/auth/sign-in'
-import { SignIn2 } from '@/features/auth/sign-in/sign-in-2'
-import { SignUp } from '@/features/auth/sign-up'
-import { ForgotPassword } from '@/features/auth/forgot-password'
-import { ResetPassword } from '@/features/auth/reset-password'
-import { Otp } from '@/features/auth/otp'
 
 export const Route = createFileRoute('/_authenticated/auth/$auth')({
   component: RouteComponent,

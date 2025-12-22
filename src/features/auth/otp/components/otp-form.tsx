@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
+import { Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
 // import { showSubmittedData } from '@/lib/show-submitted-data'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { z } from 'zod'
+
 import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -20,8 +21,8 @@ import {
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSlot,
   InputOTPSeparator,
+  InputOTPSlot,
 } from '@/components/ui/input-otp'
 
 const formSchema = z.object({

@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
-import { Check, Moon, Sun } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { useTheme } from '@/context/theme-provider'
+import { Check, Moon, Sun } from 'lucide-react'
+
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

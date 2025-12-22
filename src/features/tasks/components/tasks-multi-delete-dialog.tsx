@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { type Table } from '@tanstack/react-table'
 import { AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
+
 import { sleep } from '@/lib/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
@@ -54,9 +55,9 @@ export function TasksMultiDeleteDialog<TData>({
       handleConfirm={handleDelete}
       disabled={value.trim() !== CONFIRM_WORD}
       title={
-        <span className='text-destructive'>
+        <span className="text-destructive">
           <AlertTriangle
-            className='stroke-destructive me-1 inline-block'
+            className="stroke-destructive me-1 inline-block"
             size={18}
           />{' '}
           Delete {selectedRows.length}{' '}
@@ -64,14 +65,14 @@ export function TasksMultiDeleteDialog<TData>({
         </span>
       }
       desc={
-        <div className='space-y-4'>
-          <p className='mb-2'>
+        <div className="space-y-4">
+          <p className="mb-2">
             Are you sure you want to delete the selected tasks? <br />
             This action cannot be undone.
           </p>
 
-          <Label className='my-4 flex flex-col items-start gap-1.5'>
-            <span className=''>Confirm by typing "{CONFIRM_WORD}":</span>
+          <Label className="my-4 flex flex-col items-start gap-1.5">
+            <span className="">Confirm by typing "{CONFIRM_WORD}":</span>
             <Input
               value={value}
               onChange={(e) => setValue(e.target.value)}
@@ -79,7 +80,7 @@ export function TasksMultiDeleteDialog<TData>({
             />
           </Label>
 
-          <Alert variant='destructive'>
+          <Alert variant="destructive">
             <AlertTitle>Warning!</AlertTitle>
             <AlertDescription>
               Please be careful, this operation can not be rolled back.
@@ -87,7 +88,7 @@ export function TasksMultiDeleteDialog<TData>({
           </Alert>
         </div>
       }
-      confirmText='Delete'
+      confirmText="Delete"
       destructive
     />
   )

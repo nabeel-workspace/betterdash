@@ -1,4 +1,8 @@
 import { useEffect, useState } from 'react'
+import { format } from 'date-fns'
+import { Fingerprint, Loader2, Plus, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
+
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,10 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
-import { Loader2, Plus, Trash2, Fingerprint } from 'lucide-react'
+import { Label } from '@/components/ui/label'
 import {
   Table,
   TableBody,
@@ -22,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { format } from 'date-fns'
+
 import { SessionProps } from '..'
 
 interface Passkey {

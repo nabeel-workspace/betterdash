@@ -1,6 +1,11 @@
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -12,10 +17,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
-import { authClient } from '@/lib/auth-client'
-import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
 
 const accountFormSchema = z.object({
   email: z.email('Please enter a valid email address.'),

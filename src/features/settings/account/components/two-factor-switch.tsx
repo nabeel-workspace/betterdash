@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { Copy, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,17 +13,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { toast } from 'sonner'
-import { Loader2, Copy } from 'lucide-react'
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSlot,
   InputOTPSeparator,
+  InputOTPSlot,
 } from '@/components/ui/input-otp'
-import { PasswordInput } from '@/components/password-input'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { PasswordInput } from '@/components/password-input'
+
 import { SessionProps } from '..'
 
 export function TwoFactorSwitch({ session }: SessionProps) {

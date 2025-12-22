@@ -1,6 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Otp } from '@/features/auth/otp'
 import { getSession } from '@/server-fn/get-session'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(auth)/otp')({
   component: Otp,

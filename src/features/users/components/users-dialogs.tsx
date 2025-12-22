@@ -8,13 +8,13 @@ export function UsersDialogs() {
   return (
     <>
       <UsersActionDialog
-        key='user-add'
+        key="user-add"
         open={open === 'add'}
         onOpenChange={() => setOpen('add')}
       />
 
       <UsersInviteDialog
-        key='user-invite'
+        key="user-invite"
         open={open === 'invite'}
         onOpenChange={() => setOpen('invite')}
       />

@@ -4,7 +4,6 @@
   This file is adapted from next-themes to work with tanstack start.
   next-themes can be found at https://github.com/pacocoursey/next-themes under the MIT license.
 */
-
 import * as React from 'react'
 
 interface ValueObject {
