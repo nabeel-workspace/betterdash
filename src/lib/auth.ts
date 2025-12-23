@@ -1,9 +1,10 @@
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { admin, anonymous, twoFactor } from 'better-auth/plugins'
+import { admin as adminPlugin, anonymous, twoFactor } from 'better-auth/plugins'
 
 import { getMinimalEmailHtml } from './emals'
+import { ac, adminRole, userRole } from './permissions'
 import prisma from './prisma'
 import { SendMail } from './resend'
 
@@ -65,7 +66,13 @@ export const auth = betterAuth({
 
   appName: 'BetterDash',
   plugins: [
-    admin(),
+    adminPlugin({
+      ac,
+      roles: {
+        admin: adminRole,
+        user: userRole,
+      },
+    }),
     passkey(),
     twoFactor(),
     anonymous({
