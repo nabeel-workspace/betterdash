@@ -4,6 +4,14 @@ import { cn } from '@/lib/utils'
 
 export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
   return (
+    <img
+      src="/logo512.png"
+      className={cn('size-12 me-2 rounded-full', className)}
+      alt="BetterDash Icon"
+    />
+  )
+
+  return (
     <svg
       id="shadcn-admin-logo"
       viewBox="0 0 24 24"
