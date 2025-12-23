@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
-import { Laptop, Loader2, Monitor, Smartphone, Trash2 } from 'lucide-react'
+import { Laptop, Loader2, Monitor, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { authClient } from '@/lib/auth-client'
