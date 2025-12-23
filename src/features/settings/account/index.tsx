@@ -3,6 +3,7 @@ import { EmailForm } from './components/email-form'
 import { NameForm } from './components/name-form'
 import { PasskeySettings } from './components/passkey-settings'
 import { TwoFactorSwitch } from './components/two-factor-switch'
+import { UsernameForm } from './components/username-form'
 
 export type SessionProps = {
   session: {
@@ -24,6 +25,7 @@ export type SessionProps = {
       email: string
       emailVerified: boolean
       name: string
+      username: string | null | undefined
       image?: string | null | undefined
       banned: boolean | null | undefined
       role?: string | null | undefined
@@ -42,12 +44,13 @@ export function SettingsAccount({ session }: SessionProps) {
       desc="Update your account settings. Set your preferred language and
           timezone."
     >
-      <>
+      <div className="space-y-6">
+        <UsernameForm username={session?.user?.username || ''} />
         <NameForm name={session?.user.name || ''} />
         <EmailForm email={session?.user.email || ''} />
         <TwoFactorSwitch session={session} />
         <PasskeySettings session={session} />
-      </>
+      </div>
     </ContentSection>
   )
 }

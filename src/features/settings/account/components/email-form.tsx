@@ -8,12 +8,18 @@ import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -59,15 +65,22 @@ export function EmailForm({ email }: { email: string }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="border-b py-4">
-              <FormLabel>Email</FormLabel>
-              <div className="flex flex-row space-x-4 items-end">
-                <div className="flex-1 space-y-1">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <Card className="pb-0">
+          <CardHeader>
+            <CardTitle>Email</CardTitle>
+            <CardDescription>
+              Enter the email addresses you want to use to log in with
+              BetterDash. Your primary email will be used for account-related
+              notifications.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
                   <FormControl>
                     <Input
                       placeholder="Your email"
@@ -76,27 +89,29 @@ export function EmailForm({ email }: { email: string }) {
                     />
                   </FormControl>
                   <FormMessage className="pt-1 text-xs" />
-                </div>
+                </FormItem>
+              )}
+            />
+          </CardContent>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="whitespace-nowrap"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Save'
-                  )}
-                </Button>
-              </div>
-              <FormDescription>
-                This is the email that will be used for authentication and
-                notifications.
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+          <CardFooter className="flex items-center justify-between border-t py-4!">
+            <p className="text-sm text-muted-foreground">
+              Emails must be verified to be able to login with them or be used
+              as primary email.
+            </p>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="whitespace-nowrap"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Save'
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
       </form>
     </Form>
   )

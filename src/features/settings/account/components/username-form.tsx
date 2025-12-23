@@ -8,12 +8,18 @@ import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -103,44 +109,49 @@ export function UsernameForm({ username }: { username: string }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem className="border-b py-4">
-              <FormLabel>Username</FormLabel>
-              <div className="flex flex-row space-x-4 items-end">
-                <div className="flex-1 space-y-1">
+        <Card className="pb-0">
+          <CardHeader>
+            <CardTitle>Display Name</CardTitle>
+            <CardDescription>
+              This is your URL namespace within BetterDash.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
                   <FormControl>
                     <Input
-                      disabled={areFieldsDisabled}
                       placeholder="Your username"
                       autoComplete="username"
                       {...field}
                     />
                   </FormControl>
                   <FormMessage className="pt-1 text-xs" />
-                </div>
+                </FormItem>
+              )}
+            />
+          </CardContent>
 
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="whitespace-nowrap"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Save'
-                  )}
-                </Button>
-              </div>
-              <FormDescription>
-                This is the username that will be displayed on your profile and
-                in emails.
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+          <CardFooter className="flex items-center justify-between border-t py-4!">
+            <p className="text-sm text-muted-foreground">
+              Please use 48 characters at maximum.
+            </p>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="whitespace-nowrap"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Save'
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
       </form>
     </Form>
   )
