@@ -1,12 +1,17 @@
-import { ThemeProvider } from '@/context/theme-provider'
+import { Analytics } from '@vercel/analytics/react'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Scripts,
+  createRootRoute,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 
-import { Toaster } from '@/components/ui/sonner'
-import { NavigationProgress } from '@/components/navigation-progress'
-
 import appCss from '../styles/index.css?url'
+
+import { NavigationProgress } from '@/components/navigation-progress'
+import { Toaster } from '@/components/ui/sonner'
+import { ThemeProvider } from '@/context/theme-provider'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -44,6 +49,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <NavigationProgress />
           {children}
           <Toaster duration={5000} />
+          <Analytics />
         </ThemeProvider>
 
         <TanStackDevtools
