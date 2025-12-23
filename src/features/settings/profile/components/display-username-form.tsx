@@ -24,28 +24,32 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-const accountFormSchema = z.object({
-  name: z
+const displayUsernameFormSchema = z.object({
+  displayUsername: z
     .string()
     .min(1, 'Please enter your name.')
     .min(2, 'Name must be at least 2 characters.')
     .max(30, 'Name must not be longer than 30 characters.'),
 })
 
-type AccountFormValues = z.infer<typeof accountFormSchema>
+type DisplayUsernameFormValues = z.infer<typeof displayUsernameFormSchema>
 
-export function NameForm({ name }: { name: string }) {
+export function DisplayUsernameForm({
+  displayUsername,
+}: {
+  displayUsername: string
+}) {
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<AccountFormValues>({
-    resolver: zodResolver(accountFormSchema),
-    defaultValues: { name },
+  const form = useForm<DisplayUsernameFormValues>({
+    resolver: zodResolver(displayUsernameFormSchema),
+    defaultValues: { displayUsername },
   })
 
-  function onSubmit(data: AccountFormValues) {
+  function onSubmit(data: DisplayUsernameFormValues) {
     toast.promise(
       authClient.updateUser(
-        { name: data.name },
+        { displayUsername: data.displayUsername },
         {
           onRequest: () => {
             setIsLoading(true)
@@ -72,18 +76,21 @@ export function NameForm({ name }: { name: string }) {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card className="pb-0">
           <CardHeader>
-            <CardTitle>Name</CardTitle>
-            <CardDescription>Please enter your full name.</CardDescription>
+            <CardTitle>Display Username</CardTitle>
+            <CardDescription>
+              Please enter your full username, or a display username you are
+              comfortable with.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <FormField
               control={form.control}
-              name="name"
+              name="displayUsername"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input
-                      placeholder="Your name"
+                      placeholder="Your display username"
                       autoComplete="name"
                       {...field}
                     />

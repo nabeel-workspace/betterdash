@@ -3,6 +3,7 @@ import { Copy, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { authClient } from '@/lib/auth-client'
+import { SessionProps } from '@/lib/props'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -29,8 +30,6 @@ import {
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { PasswordInput } from '@/components/password-input'
-
-import { SessionProps } from '..'
 
 export function TwoFactorSwitch({ session }: SessionProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
