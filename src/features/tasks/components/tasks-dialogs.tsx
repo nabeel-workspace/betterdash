@@ -1,12 +1,42 @@
-import { showSubmittedData } from '@/lib/show-submitted-data'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getRouteApi } from '@tanstack/react-router'
+import { toast } from 'sonner'
+
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
+import { deleteTaskFn } from '../server/actions'
 import { TasksImportDialog } from './tasks-import-dialog'
 import { TasksMutateDrawer } from './tasks-mutate-drawer'
 import { useTasks } from './tasks-provider'
 
+const route = getRouteApi('/_authenticated/tasks/')
+
 export function TasksDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useTasks()
+  const queryClient = useQueryClient()
+  const search = route.useSearch()
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteTaskFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', search] })
+      toast.success('Task deleted successfully')
+      setOpen(null)
+      setTimeout(() => {
+        setCurrentRow(null)
+      }, 500)
+    },
+    onError: (error) => {
+      toast.error('Failed to delete task: ' + error.message)
+    },
+  })
+
+  const handleDelete = () => {
+    if (currentRow) {
+      deleteMutation.mutate({ data: { id: currentRow.id } })
+    }
+  }
+
   return (
     <>
       <TasksMutateDrawer
@@ -45,22 +75,13 @@ export function TasksDialogs() {
                 setCurrentRow(null)
               }, 500)
             }}
-            handleConfirm={() => {
-              setOpen(null)
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
-              showSubmittedData(
-                currentRow,
-                'The following task has been deleted:',
-              )
-            }}
+            handleConfirm={handleDelete}
             className="max-w-md"
-            title={`Delete this task: ${currentRow.id} ?`}
+            title={`Delete this task: ${currentRow.code} ?`}
             desc={
               <>
-                You are about to delete a task with the ID{' '}
-                <strong>{currentRow.id}</strong>. <br />
+                You are about to delete task <strong>{currentRow.code}</strong>.{' '}
+                <br />
                 This action cannot be undone.
               </>
             }

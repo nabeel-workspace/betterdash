@@ -1,3 +1,4 @@
+import { authenticatedMiddleware } from '@/middleware/auth'
 import { faker } from '@faker-js/faker'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
@@ -7,6 +8,7 @@ import prisma from '@/lib/prisma'
 import { createTaskSchema } from '../data/schema'
 
 export const createTaskFn = createServerFn({ method: 'POST' })
+  .middleware([authenticatedMiddleware])
   .inputValidator(createTaskSchema)
   .handler(async ({ data }) => {
     const count = await prisma.task.count()
@@ -20,6 +22,7 @@ export const createTaskFn = createServerFn({ method: 'POST' })
   })
 
 export const updateTaskFn = createServerFn({ method: 'POST' })
+  .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
       id: z.string(),
@@ -35,6 +38,7 @@ export const updateTaskFn = createServerFn({ method: 'POST' })
   })
 
 export const deleteTaskFn = createServerFn({ method: 'POST' })
+  .middleware([authenticatedMiddleware])
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
     await prisma.task.delete({
@@ -44,6 +48,7 @@ export const deleteTaskFn = createServerFn({ method: 'POST' })
   })
 
 export const getTasksFn = createServerFn({ method: 'GET' })
+  .middleware([authenticatedMiddleware])
   .inputValidator(
     z.object({
       pageIndex: z.number().default(0),
@@ -95,8 +100,9 @@ export const getTasksFn = createServerFn({ method: 'GET' })
     return { data: tasks, pageCount: Math.ceil(total / pageSize), total }
   })
 
-export const seedTasksFn = createServerFn({ method: 'POST' }).handler(
-  async () => {
+export const seedTasksFn = createServerFn({ method: 'POST' })
+  .middleware([authenticatedMiddleware])
+  .handler(async () => {
     const LABELS = ['bug', 'feature', 'documentation']
     const STATUSES = ['backlog', 'todo', 'in progress', 'done', 'canceled']
     const PRIORITIES = ['low', 'medium', 'high', 'critical']
@@ -114,5 +120,4 @@ export const seedTasksFn = createServerFn({ method: 'POST' }).handler(
     })
 
     return { success: true, count: 100 }
-  },
-)
+  })
