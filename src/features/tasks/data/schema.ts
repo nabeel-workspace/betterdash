@@ -11,3 +11,12 @@ export const taskSchema = z.object({
 })
 
 export type Task = z.infer<typeof taskSchema>
+
+export const createTaskSchema = z.object({
+  title: z.string().min(1, 'Title is required.'),
+  status: z.string().min(1, 'Please select a status.'),
+  label: z.string().min(1, 'Please select a label.'),
+  priority: z.string().min(1, 'Please choose a priority.'),
+})
+
+export type CreateTask = z.infer<typeof createTaskSchema>

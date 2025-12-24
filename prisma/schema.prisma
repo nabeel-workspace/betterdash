@@ -118,3 +118,15 @@ model Passkey {
   @@index([credentialID])
   @@map("passkey")
 }
+
+model Task {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  status    String
+  label     String
+  priority  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("task")
+}
