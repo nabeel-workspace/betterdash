@@ -30,7 +30,7 @@ export function ProfileDropdown() {
                 src={session?.user.image as string}
                 alt={session?.user.name}
               />
-              <AvatarFallback className="uppercase">
+              <AvatarFallback className="uppercase" suppressHydrationWarning>
                 {session?.user.name?.slice(0, 2)}
               </AvatarFallback>
             </Avatar>
@@ -42,7 +42,10 @@ export function ProfileDropdown() {
               <p className="text-sm leading-none font-medium">
                 {session?.user.name}
               </p>
-              <p className="text-muted-foreground text-xs leading-none">
+              <p
+                className="text-muted-foreground text-xs leading-none"
+                suppressHydrationWarning
+              >
                 {session?.user.email}
               </p>
             </div>

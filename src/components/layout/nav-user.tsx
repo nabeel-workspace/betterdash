@@ -48,15 +48,21 @@ export function NavUser() {
                     src={session?.user.image as string}
                     alt={session?.user.name}
                   />
-                  <AvatarFallback className="rounded-lg uppercase">
+                  <AvatarFallback
+                    className="rounded-lg uppercase"
+                    suppressHydrationWarning
+                  >
                     {session?.user.name?.slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-start text-sm leading-tight">
-                  <span className="truncate font-semibold">
+                  <span
+                    className="truncate font-semibold"
+                    suppressHydrationWarning
+                  >
                     {session?.user.name}
                   </span>
-                  <span className="truncate text-xs">
+                  <span className="truncate text-xs" suppressHydrationWarning>
                     {session?.user.email}
                   </span>
                 </div>
@@ -76,7 +82,10 @@ export function NavUser() {
                       src={session?.user.image as string}
                       alt={session?.user.name}
                     />
-                    <AvatarFallback className="rounded-lg uppercase">
+                    <AvatarFallback
+                      className="rounded-lg uppercase"
+                      suppressHydrationWarning
+                    >
                       {session?.user.name?.slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
@@ -84,7 +93,7 @@ export function NavUser() {
                     <span className="truncate font-semibold">
                       {session?.user.name}
                     </span>
-                    <span className="truncate text-xs">
+                    <span className="truncate text-xs" suppressHydrationWarning>
                       {session?.user.email}
                     </span>
                   </div>
