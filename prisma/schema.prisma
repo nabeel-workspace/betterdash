@@ -121,6 +121,7 @@ model Passkey {
 
 model Task {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  code      String   @unique
   title     String
   status    String
   label     String

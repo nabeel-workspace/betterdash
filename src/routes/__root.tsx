@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@/context/theme-provider'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 
@@ -7,6 +8,8 @@ import { Toaster } from '@/components/ui/sonner'
 import { NavigationProgress } from '@/components/navigation-progress'
 
 import appCss from '../styles/index.css?url'
+
+const queryClient = new QueryClient()
 
 export const Route = createRootRoute({
   head: () => ({
@@ -40,11 +43,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <NavigationProgress />
-          {children}
-          <Toaster duration={5000} />
-        </ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <NavigationProgress />
+            {children}
+            <Toaster duration={5000} />
+          </ThemeProvider>
+        </QueryClientProvider>
 
         <TanStackDevtools
           config={{
