@@ -25,6 +25,7 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 
 import { roles } from '../data/data'
+import { type User } from '../data/schema'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { usersColumns as columns } from './users-columns'
 
@@ -116,7 +117,7 @@ export function UsersTable() {
     ],
   })
 
-  const data = (usersQuery.data?.users as any) ?? []
+  const data: User[] = (usersQuery.data?.users as User[]) ?? []
   const rowCount = usersQuery.data?.total ?? 0
 
   // eslint-disable-next-line react-hooks/incompatible-library

@@ -17,20 +17,18 @@ import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-ta
 import { type User } from '../data/schema'
 import { UsersMultiDeleteDialog } from './users-multi-delete-dialog'
 
-type DataTableBulkActionsProps<TData> = {
-  table: Table<TData>
+type DataTableBulkActionsProps = {
+  table: Table<User>
 }
 
-export function DataTableBulkActions<TData>({
-  table,
-}: DataTableBulkActionsProps<TData>) {
+export function DataTableBulkActions({ table }: DataTableBulkActionsProps) {
   const queryClient = useQueryClient()
   const { data: session } = authClient.useSession()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const selectedRows = table.getFilteredSelectedRowModel().rows
 
   const handleBulkStatusChange = (status: 'ban' | 'unban') => {
-    const selectedUsers = selectedRows.map((row) => row.original as User)
+    const selectedUsers = selectedRows.map((row) => row.original)
     const userIds = selectedUsers
       .map((user) => user.id)
       .filter((id) => {
@@ -80,7 +78,7 @@ export function DataTableBulkActions<TData>({
   }
 
   const handleBulkInvite = () => {
-    const selectedUsers = selectedRows.map((row) => row.original as User)
+    const selectedUsers = selectedRows.map((row) => row.original)
     toast.promise(sleep(2000), {
       loading: 'Inviting users...',
       success: () => {
