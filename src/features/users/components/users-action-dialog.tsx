@@ -2,8 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { authClient } from '@/lib/auth-client'
 import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,7 +36,6 @@ const formSchema = z
     firstName: z.string().min(1, 'First Name is required.'),
     lastName: z.string().min(1, 'Last Name is required.'),
     username: z.string().min(1, 'Username is required.'),
-    phoneNumber: z.string().min(1, 'Phone number is required.'),
     email: z.email({
       error: (iss) => (iss.input === '' ? 'Email is required.' : undefined),
     }),
@@ -122,7 +123,6 @@ export function UsersActionDialog({
           username: '',
           email: '',
           role: '',
-          phoneNumber: '',
           password: '',
           confirmPassword: '',
           isEdit,
@@ -130,9 +130,72 @@ export function UsersActionDialog({
   })
 
   const onSubmit = (values: UserForm) => {
-    form.reset()
-    showSubmittedData(values)
-    onOpenChange(false)
+    if (isEdit && currentRow) {
+      const updateData: any = {
+        email: values.email,
+        name: `${values.firstName} ${values.lastName}`,
+        role: values.role as any,
+        username: values.username,
+        displayUsername: values.username,
+      }
+
+      if (values.password.trim()) {
+        updateData.password = values.password
+      }
+
+      toast.promise(
+        authClient.admin.updateUser(
+          {
+            userId: currentRow.id,
+            data: updateData,
+          },
+          {
+            onError: (ctx) => {
+              throw new Error(ctx.error.message)
+            },
+          },
+        ),
+        {
+          loading: 'Updating user...',
+          success: () => {
+            form.reset()
+            onOpenChange(false)
+            return `User ${values.firstName} ${values.lastName} updated successfully!`
+          },
+          error: (err) => err.message || 'Failed to update user',
+        },
+      )
+      return
+    }
+
+    toast.promise(
+      authClient.admin.createUser(
+        {
+          email: values.email,
+          password: values.password,
+          name: `${values.firstName} ${values.lastName}`,
+          role: values.role as any,
+          data: {
+            username: values.username,
+            displayUsername: values.username,
+          },
+        },
+        {
+          onError: (ctx) => {
+            throw new Error(ctx.error.message)
+          },
+        },
+      ),
+      {
+        loading: 'Creating user...',
+        success: () => {
+          form.reset()
+          onOpenChange(false)
+          return `User ${values.firstName} ${values.lastName} created successfully!`
+        },
+        error: (err) => err.message || 'Failed to create user',
+      },
+    )
   }
 
   const isPasswordTouched = !!form.formState.dirtyFields.password
@@ -228,25 +291,6 @@ export function UsersActionDialog({
                     <FormControl>
                       <Input
                         placeholder="john.doe@gmail.com"
-                        className="col-span-4"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className="col-span-4 col-start-3" />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem className="grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1">
-                    <FormLabel className="col-span-2 text-end">
-                      Phone Number
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="+123456789"
                         className="col-span-4"
                         {...field}
                       />
