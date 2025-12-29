@@ -1,29 +1,34 @@
 'use client'
 
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { type Table } from '@tanstack/react-table'
 import { AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { sleep } from '@/lib/utils'
+import { authClient } from '@/lib/auth-client'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
-type UserMultiDeleteDialogProps<TData> = {
+import { type User } from '../data/schema'
+
+type UserMultiDeleteDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  table: Table<TData>
+  table: Table<User>
 }
 
 const CONFIRM_WORD = 'DELETE'
 
-export function UsersMultiDeleteDialog<TData>({
+export function UsersMultiDeleteDialog({
   open,
   onOpenChange,
   table,
-}: UserMultiDeleteDialogProps<TData>) {
+}: UserMultiDeleteDialogProps) {
+  const queryClient = useQueryClient()
+  const { data: session } = authClient.useSession()
   const [value, setValue] = useState('')
 
   const selectedRows = table.getFilteredSelectedRowModel().rows
@@ -34,18 +39,43 @@ export function UsersMultiDeleteDialog<TData>({
       return
     }
 
+    const userIds = selectedRows
+      .map((row) => row.original.id)
+      .filter((id) => id !== session?.user?.id)
+
+    if (userIds.length === 0 && selectedRows.length > 0) {
+      toast.error('You cannot delete yourself!')
+      return
+    }
+
     onOpenChange(false)
 
-    toast.promise(sleep(2000), {
-      loading: 'Deleting users...',
-      success: () => {
-        table.resetRowSelection()
-        return `Deleted ${selectedRows.length} ${
-          selectedRows.length > 1 ? 'users' : 'user'
-        }`
+    toast.promise(
+      Promise.all(
+        userIds.map((userId) =>
+          authClient.admin.removeUser(
+            { userId },
+            {
+              onError: (ctx) => {
+                throw new Error(ctx.error.message)
+              },
+            },
+          ),
+        ),
+      ),
+      {
+        loading: 'Deleting users...',
+        success: () => {
+          queryClient.invalidateQueries({ queryKey: ['users'] })
+          table.resetRowSelection()
+          const deletedCount = userIds.length
+          return `Deleted ${deletedCount} ${
+            deletedCount > 1 ? 'users' : 'user'
+          }`
+        },
+        error: (err) => err.message || 'Failed to delete users',
       },
-      error: 'Error',
-    })
+    )
   }
 
   return (

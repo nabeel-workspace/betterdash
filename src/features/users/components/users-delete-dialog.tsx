@@ -25,10 +25,16 @@ export function UsersDeleteDialog({
   currentRow,
 }: UserDeleteDialogProps) {
   const queryClient = useQueryClient()
+  const { data: session } = authClient.useSession()
   const [value, setValue] = useState('')
 
   const handleDelete = () => {
     if (value.trim() !== (currentRow.username || '')) return
+
+    if (session?.user?.id === currentRow.id) {
+      toast.error('You cannot delete yourself!')
+      return
+    }
 
     toast.promise(
       authClient.admin.removeUser({

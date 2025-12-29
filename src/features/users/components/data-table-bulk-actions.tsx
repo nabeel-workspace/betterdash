@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { type Table } from '@tanstack/react-table'
 import { Mail, Trash2, UserCheck, UserX } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { authClient } from '@/lib/auth-client'
 import { sleep } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,20 +24,59 @@ type DataTableBulkActionsProps<TData> = {
 export function DataTableBulkActions<TData>({
   table,
 }: DataTableBulkActionsProps<TData>) {
+  const queryClient = useQueryClient()
+  const { data: session } = authClient.useSession()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const selectedRows = table.getFilteredSelectedRowModel().rows
 
-  const handleBulkStatusChange = (status: 'active' | 'inactive') => {
+  const handleBulkStatusChange = (status: 'ban' | 'unban') => {
     const selectedUsers = selectedRows.map((row) => row.original as User)
-    toast.promise(sleep(2000), {
-      loading: `${status === 'active' ? 'Activating' : 'Deactivating'} users...`,
-      success: () => {
-        table.resetRowSelection()
-        return `${status === 'active' ? 'Activated' : 'Deactivated'} ${selectedUsers.length} user${selectedUsers.length > 1 ? 's' : ''}`
+    const userIds = selectedUsers
+      .map((user) => user.id)
+      .filter((id) => {
+        if (status === 'ban' && id === session?.user?.id) return false
+        return true
+      })
+
+    if (status === 'ban' && userIds.length < selectedUsers.length) {
+      toast.error('You cannot ban yourself!')
+      if (userIds.length === 0) return
+    }
+
+    toast.promise(
+      Promise.all(
+        userIds.map((userId) =>
+          status === 'ban'
+            ? authClient.admin.banUser(
+                { userId, banReason: 'Restricted by administrator' },
+                {
+                  onError: (ctx) => {
+                    throw new Error(ctx.error.message)
+                  },
+                },
+              )
+            : authClient.admin.unbanUser(
+                { userId },
+                {
+                  onError: (ctx) => {
+                    throw new Error(ctx.error.message)
+                  },
+                },
+              ),
+        ),
+      ),
+      {
+        loading: `${status === 'ban' ? 'Banning' : 'Unbanning'} users...`,
+        success: () => {
+          queryClient.invalidateQueries({ queryKey: ['users'] })
+          table.resetRowSelection()
+          return `${status === 'ban' ? 'Banned' : 'Unbanned'} ${userIds.length} user${userIds.length > 1 ? 's' : ''}`
+        },
+        error: (err) =>
+          err.message ||
+          `Error ${status === 'ban' ? 'banning' : 'unbanning'} users`,
       },
-      error: `Error ${status === 'active' ? 'activating' : 'deactivating'} users`,
-    })
-    table.resetRowSelection()
+    )
   }
 
   const handleBulkInvite = () => {
@@ -78,17 +119,17 @@ export function DataTableBulkActions<TData>({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => handleBulkStatusChange('active')}
+              onClick={() => handleBulkStatusChange('ban')}
               className="size-8"
-              aria-label="Activate selected users"
-              title="Activate selected users"
+              aria-label="Ban selected users"
+              title="Ban selected users"
             >
-              <UserCheck />
-              <span className="sr-only">Activate selected users</span>
+              <UserX />
+              <span className="sr-only">Ban selected users</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Activate selected users</p>
+            <p>Ban selected users</p>
           </TooltipContent>
         </Tooltip>
 
@@ -97,17 +138,17 @@ export function DataTableBulkActions<TData>({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => handleBulkStatusChange('inactive')}
+              onClick={() => handleBulkStatusChange('unban')}
               className="size-8"
-              aria-label="Deactivate selected users"
-              title="Deactivate selected users"
+              aria-label="Unban selected users"
+              title="Unban selected users"
             >
-              <UserX />
-              <span className="sr-only">Deactivate selected users</span>
+              <UserCheck />
+              <span className="sr-only">Unban selected users</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Deactivate selected users</p>
+            <p>Unban selected users</p>
           </TooltipContent>
         </Tooltip>
 
