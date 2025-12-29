@@ -36,6 +36,16 @@ import { tasksColumns as columns } from './tasks-columns'
 
 const route = getRouteApi('/_authenticated/tasks/')
 
+/**
+ * Render a paginated, sortable, and filterable tasks table that fetches task data and syncs table state with the URL.
+ *
+ * The component fetches tasks via React Query, manages selection and column visibility locally, and delegates pagination,
+ * sorting, and filtering to URL-synced state. It shows loading skeletons while fetching, an empty-state message when there
+ * are no rows, and a "Seed 100 Tasks" button when the dataset is empty. Bulk actions and pagination controls are exposed
+ * via the rendered toolbar and footer components.
+ *
+ * @returns A React element containing the tasks table UI, including toolbar, table body, pagination, bulk actions, and an optional seed button.
+ */
 export function TasksTable() {
   const queryClient = useQueryClient()
   const search = route.useSearch()

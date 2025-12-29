@@ -46,6 +46,14 @@ const formSchema = z.object({
 })
 type TaskForm = z.infer<typeof formSchema>
 
+/**
+ * Render a drawer containing a task form that creates a new task or updates an existing one.
+ *
+ * @param open - Whether the drawer is open
+ * @param onOpenChange - Callback invoked when the drawer open state changes
+ * @param currentRow - Optional task to prefill the form for editing
+ * @returns A JSX element rendering the task form drawer
+ */
 export function TasksMutateDrawer({
   open,
   onOpenChange,

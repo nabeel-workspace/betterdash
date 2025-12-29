@@ -11,6 +11,14 @@ import { useTasks } from './tasks-provider'
 
 const route = getRouteApi('/_authenticated/tasks/')
 
+/**
+ * Render dialogs for creating, importing, updating, and deleting tasks.
+ *
+ * Handles task deletion through a mutation that invalidates the tasks query,
+ * shows success or error toasts, and closes/clears dialogs and the current selection.
+ *
+ * @returns A React fragment containing task-management drawers, an import dialog, and a delete confirmation dialog tied to the current task row.
+ */
 export function TasksDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useTasks()
   const queryClient = useQueryClient()

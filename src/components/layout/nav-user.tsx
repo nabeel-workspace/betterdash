@@ -28,6 +28,11 @@ import {
 } from '@/components/ui/sidebar'
 import { SignOutDialog } from '@/components/sign-out-dialog'
 
+/**
+ * Renders a user avatar button with a dropdown menu containing account links and a sign-out flow.
+ *
+ * Displays the current session user's avatar, name, and email; adapts dropdown placement for mobile vs desktop; and opens the sign-out confirmation dialog when "Sign out" is selected.
+ */
 export function NavUser() {
   const { isMobile } = useSidebar()
   const [open, setOpen] = useDialogState()
