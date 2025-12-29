@@ -31,6 +31,14 @@ type DataTableRowActionsProps<TData> = {
   row: Row<TData>
 }
 
+/**
+ * Render the action menu for a task row in the data table.
+ *
+ * Changing the label updates the task and refreshes the task list; selecting Edit or Delete opens the corresponding modal via the tasks provider.
+ *
+ * @param row - Table row containing the task data (row.original is validated against the task schema)
+ * @returns The JSX element presenting row-level actions (edit, labels, delete, etc.)
+ */
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {

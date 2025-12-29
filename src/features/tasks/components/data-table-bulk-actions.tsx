@@ -30,6 +30,16 @@ type DataTableBulkActionsProps<TData> = {
 
 const route = getRouteApi('/_authenticated/tasks/')
 
+/**
+ * Render bulk action controls for the given data table's selected rows.
+ *
+ * Provides UI for updating status and priority, exporting selected tasks to CSV,
+ * and opening a multi-delete confirmation dialog. Actions operate on the table's
+ * currently selected rows and reset selection after completion.
+ *
+ * @param table - The table instance used to read selected rows and reset selection
+ * @returns The bulk actions toolbar JSX bound to the provided table
+ */
 export function DataTableBulkActions<TData>({
   table,
 }: DataTableBulkActionsProps<TData>) {

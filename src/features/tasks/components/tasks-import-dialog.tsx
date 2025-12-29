@@ -48,6 +48,13 @@ type TaskImportDialogProps = {
   onOpenChange: (open: boolean) => void
 }
 
+/**
+ * Render a modal dialog that lets the user upload a CSV file to import tasks.
+ *
+ * Parses the CSV client-side, builds task objects from the header row, filters rows to required fields (id, title, status, label, priority), and initiates an import mutation. On success it invalidates the tasks cache, shows a success toast, closes the dialog and resets the form; on error it shows an error toast.
+ *
+ * @returns The dialog element containing the task import form and controls
+ */
 export function TasksImportDialog({
   open,
   onOpenChange,

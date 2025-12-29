@@ -24,6 +24,15 @@ type TaskMultiDeleteDialogProps<TData> = {
 const route = getRouteApi('/_authenticated/tasks/')
 const CONFIRM_WORD = 'DELETE'
 
+/**
+ * Render a confirmation dialog for deleting multiple selected tasks.
+ *
+ * The dialog requires the user to type "DELETE" to enable the destructive action.
+ * Confirming deletes the currently selected tasks, invalidates the tasks cache for the current search, shows a success or error toast, resets table selection, closes the dialog, and clears the confirmation input.
+ *
+ * @param table - Table instance used to read selected rows and reset row selection after successful deletion
+ * @returns The confirmation dialog element that handles multi-delete flow for selected tasks
+ */
 export function TasksMultiDeleteDialog<TData>({
   open,
   onOpenChange,

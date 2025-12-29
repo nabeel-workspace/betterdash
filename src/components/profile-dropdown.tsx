@@ -16,6 +16,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SignOutDialog } from '@/components/sign-out-dialog'
 
+/**
+ * Renders a user avatar that opens a dropdown with account information, navigation actions, and a sign-out dialog.
+ *
+ * The dropdown shows the user's name and email, profile-related navigation links (Profile, Billing, Settings, New Team),
+ * and a destructive "Sign out" action that opens a confirmation dialog.
+ *
+ * @returns The React element for the profile dropdown including its trigger and associated SignOutDialog.
+ */
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState()
   const { data: session } = authClient.useSession()

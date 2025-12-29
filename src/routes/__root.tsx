@@ -36,6 +36,12 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
+/**
+ * Application root HTML document that wraps the provided app content with global providers, UI utilities, and developer tools.
+ *
+ * @param children - React nodes rendered as the main application content inside the document body
+ * @returns A JSX element representing the complete HTML document for the application root
+ */
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="system" suppressHydrationWarning>

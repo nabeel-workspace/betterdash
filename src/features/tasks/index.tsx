@@ -9,6 +9,14 @@ import { TasksPrimaryButtons } from './components/tasks-primary-buttons'
 import { TasksProvider } from './components/tasks-provider'
 import { TasksTable } from './components/tasks-table'
 
+/**
+ * Render the Tasks page layout including header, controls, and task UI, with task state provided by TasksProvider.
+ *
+ * The rendered tree includes a fixed Header with search and profile/theme controls, a Main area with title,
+ * primary action buttons and the tasks table, and task-related dialogs — all wrapped by TasksProvider.
+ *
+ * @returns A JSX element containing the Tasks page layout and its task provider
+ */
 export function Tasks() {
   return (
     <TasksProvider>
