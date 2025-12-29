@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
 
-import { showSubmittedData } from '@/lib/show-submitted-data'
+import { authClient } from '@/lib/auth-client'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,13 +24,26 @@ export function UsersDeleteDialog({
   onOpenChange,
   currentRow,
 }: UserDeleteDialogProps) {
+  const queryClient = useQueryClient()
   const [value, setValue] = useState('')
 
   const handleDelete = () => {
-    if (value.trim() !== currentRow.username) return
+    if (value.trim() !== (currentRow.username || '')) return
 
-    onOpenChange(false)
-    showSubmittedData(currentRow, 'The following user has been deleted:')
+    toast.promise(
+      authClient.admin.removeUser({
+        userId: currentRow.id,
+      }),
+      {
+        loading: 'Deleting user...',
+        success: () => {
+          queryClient.invalidateQueries({ queryKey: ['users'] })
+          onOpenChange(false)
+          return `User ${currentRow.name} deleted successfully!`
+        },
+        error: (err) => err.message || 'Failed to delete user',
+      },
+    )
   }
 
   return (
@@ -36,7 +51,7 @@ export function UsersDeleteDialog({
       open={open}
       onOpenChange={onOpenChange}
       handleConfirm={handleDelete}
-      disabled={value.trim() !== currentRow.username}
+      disabled={value.trim() !== (currentRow.username || '')}
       title={
         <span className="text-destructive">
           <AlertTriangle
@@ -54,7 +69,7 @@ export function UsersDeleteDialog({
             <br />
             This action will permanently remove the user with the role of{' '}
             <span className="font-bold">
-              {currentRow.role.toUpperCase()}
+              {(currentRow.role || 'user').toUpperCase()}
             </span>{' '}
             from the system. This cannot be undone.
           </p>

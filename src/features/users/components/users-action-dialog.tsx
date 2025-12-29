@@ -1,12 +1,12 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { authClient } from '@/lib/auth-client'
-import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -107,12 +107,17 @@ export function UsersActionDialog({
   open,
   onOpenChange,
 }: UserActionDialogProps) {
+  const queryClient = useQueryClient()
   const isEdit = !!currentRow
   const form = useForm<UserForm>({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
-          ...currentRow,
+          firstName: currentRow.name.split(' ')[0] || '',
+          lastName: currentRow.name.split(' ').slice(1).join(' ') || '',
+          username: currentRow.username || '',
+          email: currentRow.email,
+          role: currentRow.role || '',
           password: '',
           confirmPassword: '',
           isEdit,
@@ -158,6 +163,7 @@ export function UsersActionDialog({
         {
           loading: 'Updating user...',
           success: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] })
             form.reset()
             onOpenChange(false)
             return `User ${values.firstName} ${values.lastName} updated successfully!`
@@ -189,6 +195,7 @@ export function UsersActionDialog({
       {
         loading: 'Creating user...',
         success: () => {
+          queryClient.invalidateQueries({ queryKey: ['users'] })
           form.reset()
           onOpenChange(false)
           return `User ${values.firstName} ${values.lastName} created successfully!`

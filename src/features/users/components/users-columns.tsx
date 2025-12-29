@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
 import { LongText } from '@/components/long-text'
 
-import { callTypes, roles } from '../data/data'
+import { roles } from '../data/data'
 import { type User } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
 
@@ -49,21 +49,19 @@ export const usersColumns: ColumnDef<User>[] = [
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)]',
-        'ps-0.5 max-md:sticky start-6 @4xl/content:table-cell @4xl/content:drop-shadow-none',
+        'ps-3 max-md:sticky start-6 @4xl/content:table-cell @4xl/content:drop-shadow-none',
       ),
     },
     enableHiding: false,
   },
   {
-    id: 'fullName',
+    accessorKey: 'name',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
-    cell: ({ row }) => {
-      const { firstName, lastName } = row.original
-      const fullName = `${firstName} ${lastName}`
-      return <LongText className="max-w-36">{fullName}</LongText>
-    },
+    cell: ({ row }) => (
+      <LongText className="max-w-36">{row.getValue('name')}</LongText>
+    ),
     meta: { className: 'w-36' },
   },
   {
@@ -76,33 +74,35 @@ export const usersColumns: ColumnDef<User>[] = [
     ),
   },
   {
-    accessorKey: 'phoneNumber',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Phone Number" />
-    ),
-    cell: ({ row }) => <div>{row.getValue('phoneNumber')}</div>,
-    enableSorting: false,
-  },
-  {
-    accessorKey: 'status',
+    id: 'status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      const { status } = row.original
-      const badgeColor = callTypes.get(status)
+      const { banned, isAnonymous } = row.original
       return (
-        <div className="flex space-x-2">
-          <Badge variant="outline" className={cn('capitalize', badgeColor)}>
-            {row.getValue('status')}
-          </Badge>
+        <div className="flex gap-x-1">
+          {banned && (
+            <Badge variant="destructive" className="capitalize">
+              Banned
+            </Badge>
+          )}
+          {isAnonymous && (
+            <Badge variant="secondary" className="capitalize">
+              Anonymous
+            </Badge>
+          )}
+          {!banned && !isAnonymous && (
+            <Badge
+              variant="outline"
+              className="capitalize text-muted-foreground"
+            >
+              Active
+            </Badge>
+          )}
         </div>
       )
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-    enableHiding: false,
     enableSorting: false,
   },
   {

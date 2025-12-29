@@ -1,3 +1,4 @@
+import { QueryProvider } from '@/context/query-provider'
 import { ThemeProvider } from '@/context/theme-provider'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
@@ -40,11 +41,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <NavigationProgress />
-          {children}
-          <Toaster duration={5000} />
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <NavigationProgress />
+            {children}
+            <Toaster duration={5000} />
+          </ThemeProvider>
+        </QueryProvider>
 
         <TanStackDevtools
           config={{

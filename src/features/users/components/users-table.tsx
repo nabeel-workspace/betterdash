@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { getRouteApi } from '@tanstack/react-router'
 import {
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
+  type OnChangeFn,
   type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table'
 
+import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
-import { useTableUrlState, type NavigateFn } from '@/hooks/use-table-url-state'
+import { useTableUrlState } from '@/hooks/use-table-url-state'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -25,79 +25,127 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 
 import { roles } from '../data/data'
-import { type User } from '../data/schema'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { usersColumns as columns } from './users-columns'
 
-type DataTableProps = {
-  data: User[]
-  search: Record<string, unknown>
-  navigate: NavigateFn
-}
+const route = getRouteApi('/_authenticated/users/')
 
-export function UsersTable({ data, search, navigate }: DataTableProps) {
-  // Local UI-only states
+export function UsersTable() {
+  const search = route.useSearch()
+  const navigate = route.useNavigate()
+  const usersQuery = useQuery({
+    queryKey: ['users', search],
+    queryFn: async () => {
+      const { data, error } = await authClient.admin.listUsers({
+        query: {
+          limit: search.pageSize ?? 10,
+          offset: ((search.page ?? 1) - 1) * (search.pageSize ?? 10),
+          ...(search.sort && search.sort.length > 0
+            ? {
+                sortBy: search.sort[0].id,
+                sortDirection: search.sort[0].desc ? 'desc' : 'asc',
+              }
+            : {}),
+          ...(search.username
+            ? {
+                searchValue: search.username,
+                searchField: 'name',
+                searchOperator: 'contains',
+              }
+            : {}),
+          ...(search.banned && search.banned.length > 0
+            ? {
+                filterField: 'banned',
+                filterValue: search.banned[0],
+                filterOperator: 'eq',
+              }
+            : search.isAnonymous && search.isAnonymous.length > 0
+              ? {
+                  filterField: 'isAnonymous',
+                  filterValue: search.isAnonymous[0],
+                  filterOperator: 'eq',
+                }
+              : search.role && search.role.length > 0
+                ? {
+                    filterField: 'role',
+                    filterValue: search.role[0],
+                    filterOperator: 'eq',
+                  }
+                : {}),
+        },
+      })
+      if (error) throw new Error(error.message)
+      return data
+    },
+    placeholderData: keepPreviousData,
+  })
+
   const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    banned: false,
+    isAnonymous: false,
+  })
 
-  // Local state management for table (uncomment to use local-only state, not synced with URL)
-  // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
-  // const [pagination, onPaginationChange] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
+  const { sort } = search
 
-  // Synced with URL states (keys/defaults mirror users route search schema)
+  const onSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
+    const newSorting =
+      typeof updaterOrValue === 'function'
+        ? updaterOrValue(sort || [])
+        : updaterOrValue
+    navigate({
+      search: (prev) => ({ ...prev, sort: newSorting }),
+    })
+  }
+
   const {
     columnFilters,
     onColumnFiltersChange,
     pagination,
     onPaginationChange,
-    ensurePageInRange,
   } = useTableUrlState({
     search,
     navigate,
     pagination: { defaultPage: 1, defaultPageSize: 10 },
     globalFilter: { enabled: false },
     columnFilters: [
-      // username per-column text filter
       { columnId: 'username', searchKey: 'username', type: 'string' },
-      { columnId: 'status', searchKey: 'status', type: 'array' },
+      { columnId: 'banned', searchKey: 'banned', type: 'array' },
+      { columnId: 'isAnonymous', searchKey: 'isAnonymous', type: 'array' },
       { columnId: 'role', searchKey: 'role', type: 'array' },
     ],
   })
+
+  const data = (usersQuery.data?.users as any) ?? []
+  const rowCount = usersQuery.data?.total ?? 0
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
+    rowCount,
     state: {
-      sorting,
+      sorting: sort,
       pagination,
       rowSelection,
       columnFilters,
       columnVisibility,
     },
     enableRowSelection: true,
+    manualPagination: true,
+    manualSorting: true,
     onPaginationChange,
     onColumnFiltersChange,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
+    onSortingChange: onSortingChange,
     onColumnVisibilityChange: setColumnVisibility,
-    getPaginationRowModel: getPaginationRowModel(),
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
   })
-
-  useEffect(() => {
-    ensurePageInRange(table.getPageCount())
-  }, [table, ensurePageInRange])
 
   return (
     <div
       className={cn(
-        'max-sm:has-[div[role="toolbar"]]:mb-16', // Add margin bottom to the table on mobile when the toolbar is visible
+        'max-sm:has-[div[role="toolbar"]]:mb-16',
         'flex flex-1 flex-col gap-4',
       )}
     >
@@ -107,13 +155,19 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
         searchKey="username"
         filters={[
           {
-            columnId: 'status',
-            title: 'Status',
+            columnId: 'banned',
+            title: 'Banned',
             options: [
-              { label: 'Active', value: 'active' },
-              { label: 'Inactive', value: 'inactive' },
-              { label: 'Invited', value: 'invited' },
-              { label: 'Suspended', value: 'suspended' },
+              { label: 'Yes', value: 'true' },
+              { label: 'No', value: 'false' },
+            ],
+          },
+          {
+            columnId: 'isAnonymous',
+            title: 'Anonymous',
+            options: [
+              { label: 'Yes', value: 'true' },
+              { label: 'No', value: 'false' },
             ],
           },
           {
@@ -152,7 +206,17 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {usersQuery.isLoading ? (
+              Array.from({ length: search.pageSize ?? 10 }).map((_, index) => (
+                <TableRow key={index} className="hover:bg-transparent">
+                  {columns.map((_, cellIndex) => (
+                    <TableCell key={cellIndex}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

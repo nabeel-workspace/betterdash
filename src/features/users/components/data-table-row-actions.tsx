@@ -1,14 +1,22 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import { useQueryClient } from '@tanstack/react-query'
 import { type Row } from '@tanstack/react-table'
 import { Trash2, UserPen } from 'lucide-react'
+import { toast } from 'sonner'
 
+import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -20,7 +28,83 @@ type DataTableRowActionsProps = {
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
+  const queryClient = useQueryClient()
   const { setOpen, setCurrentRow } = useUsers()
+  const { data: session } = authClient.useSession()
+
+  const handleRoleChange = async (value: string) => {
+    const user = row.original
+
+    if (session?.user?.id === user.id) {
+      toast.error('You cannot change your role!')
+      return
+    }
+
+    toast.promise(
+      authClient.admin.updateUser(
+        {
+          userId: user.id,
+          data: {
+            role: value,
+          },
+        },
+        {
+          onError: (ctx) => {
+            throw new Error(ctx.error.message)
+          },
+        },
+      ),
+      {
+        loading: 'Updating user role...',
+        success: () => {
+          queryClient.invalidateQueries({ queryKey: ['users'] })
+          return `User ${user.name} role updated successfully!`
+        },
+        error: (err) => err.message || 'Failed to update user role',
+      },
+    )
+  }
+
+  const handleStatusChange = async (value: string) => {
+    const user = row.original
+
+    if (value === 'band') {
+      if (session?.user?.id === user.id) {
+        toast.error('You cannot ban yourself!')
+        return
+      }
+
+      toast.promise(
+        authClient.admin.banUser({
+          userId: user.id,
+          banReason: 'Restricted by administrator',
+        }),
+        {
+          loading: 'Banning user...',
+          success: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] })
+            return `User ${user.name} has been banned.`
+          },
+          error: (err) => err.message || 'Failed to ban user',
+        },
+      )
+    } else if (value === 'unband') {
+      toast.promise(
+        authClient.admin.unbanUser({
+          userId: user.id,
+        }),
+        {
+          loading: 'Unbanning user...',
+          success: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] })
+            return `User ${user.name} has been unbanned.`
+          },
+          error: (err) => err.message || 'Failed to unban user',
+        },
+      )
+    }
+  }
+
   return (
     <>
       <DropdownMenu modal={false}>
@@ -45,6 +129,38 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
               <UserPen size={16} />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Role</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={row.original.role || 'user'}
+                onValueChange={handleRoleChange}
+              >
+                <DropdownMenuRadioItem key="user" value="user">
+                  User
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem key="admin" value="admin">
+                  Admin
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>status</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={row.original.banned ? 'band' : 'unband'}
+                onValueChange={handleStatusChange}
+              >
+                <DropdownMenuRadioItem key="band" value="band">
+                  Ban
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem key="unband" value="unband">
+                  Unban
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {
