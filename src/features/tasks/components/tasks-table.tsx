@@ -1,20 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 import {
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
+  type OnChangeFn,
   type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table'
 
 import { cn } from '@/lib/utils'
 import { useTableUrlState } from '@/hooks/use-table-url-state'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -26,26 +30,33 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 
 import { priorities, statuses } from '../data/data'
-import { type Task } from '../data/schema'
+import { getTasksFn, seedTasksFn } from '../server/actions'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { tasksColumns as columns } from './tasks-columns'
 
 const route = getRouteApi('/_authenticated/tasks/')
 
-type DataTableProps = {
-  data: Task[]
-}
+export function TasksTable() {
+  const queryClient = useQueryClient()
+  const search = route.useSearch()
+  const tasksQuery = useQuery({
+    queryKey: ['tasks', search],
+    queryFn: () =>
+      getTasksFn({
+        data: {
+          ...search,
+          pageIndex: (search.page ?? 1) - 1,
+          pageSize: search.pageSize ?? 10,
+          title: search.filter ?? undefined,
+          sorting: search.sort,
+        },
+      }),
+    placeholderData: keepPreviousData,
+  })
 
-export function TasksTable({ data }: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
-  const [sorting, setSorting] = useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-
-  // Local state management for table (uncomment to use local-only state, not synced with URL)
-  // const [globalFilter, onGlobalFilterChange] = useState('')
-  // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
-  // const [pagination, onPaginationChange] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
 
   // Synced with URL states (updated to match route search schema defaults)
   const {
@@ -55,9 +66,8 @@ export function TasksTable({ data }: DataTableProps) {
     onColumnFiltersChange,
     pagination,
     onPaginationChange,
-    ensurePageInRange,
   } = useTableUrlState({
-    search: route.useSearch(),
+    search,
     navigate: route.useNavigate(),
     pagination: { defaultPage: 1, defaultPageSize: 10 },
     globalFilter: { enabled: true, key: 'filter' },
@@ -67,12 +77,38 @@ export function TasksTable({ data }: DataTableProps) {
     ],
   })
 
-  // eslint-disable-next-line react-hooks/incompatible-library
+  const { sort } = search
+  const navigate = route.useNavigate()
+
+  const onSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
+    const newSorting =
+      typeof updaterOrValue === 'function'
+        ? updaterOrValue(sort || [])
+        : updaterOrValue
+    navigate({
+      search: (prev) => ({ ...prev, sort: newSorting }),
+    })
+  }
+
+  const seedMutation = useMutation({
+    mutationFn: seedTasksFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    },
+  })
+
+  const data = tasksQuery.data?.data ?? []
+  const rowCount = tasksQuery.data?.total ?? 0
+
   const table = useReactTable({
     data,
     columns,
+    rowCount,
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
     state: {
-      sorting,
+      sorting: sort,
       columnVisibility,
       rowSelection,
       columnFilters,
@@ -81,30 +117,13 @@ export function TasksTable({ data }: DataTableProps) {
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
+    onSortingChange: onSortingChange,
     onColumnVisibilityChange: setColumnVisibility,
-    globalFilterFn: (row, _columnId, filterValue) => {
-      const id = String(row.getValue('id')).toLowerCase()
-      const title = String(row.getValue('title')).toLowerCase()
-      const searchValue = String(filterValue).toLowerCase()
-
-      return id.includes(searchValue) || title.includes(searchValue)
-    },
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
     onPaginationChange,
     onGlobalFilterChange,
     onColumnFiltersChange,
   })
-
-  const pageCount = table.getPageCount()
-  useEffect(() => {
-    ensurePageInRange(pageCount)
-  }, [pageCount, ensurePageInRange])
 
   return (
     <div
@@ -113,22 +132,33 @@ export function TasksTable({ data }: DataTableProps) {
         'flex flex-1 flex-col gap-4',
       )}
     >
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder="Filter by title or ID..."
-        filters={[
-          {
-            columnId: 'status',
-            title: 'Status',
-            options: statuses,
-          },
-          {
-            columnId: 'priority',
-            title: 'Priority',
-            options: priorities,
-          },
-        ]}
-      />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <DataTableToolbar
+          table={table}
+          searchPlaceholder="Filter by title or ID..."
+          filters={[
+            {
+              columnId: 'status',
+              title: 'Status',
+              options: statuses,
+            },
+            {
+              columnId: 'priority',
+              title: 'Priority',
+              options: priorities,
+            },
+          ]}
+        />
+        {data.length < 1 && (
+          <Button
+            size="sm"
+            onClick={() => seedMutation.mutate(undefined)}
+            disabled={seedMutation.isPending}
+          >
+            {seedMutation.isPending ? 'Seeding...' : 'Seed 100 Tasks'}
+          </Button>
+        )}
+      </div>
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -157,7 +187,17 @@ export function TasksTable({ data }: DataTableProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {tasksQuery.isLoading ? (
+              Array.from({ length: search.pageSize ?? 10 }).map((_, index) => (
+                <TableRow key={index} className="hover:bg-transparent">
+                  {columns.map((_, cellIndex) => (
+                    <TableCell key={cellIndex}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

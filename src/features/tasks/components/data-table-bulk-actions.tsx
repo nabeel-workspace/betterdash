@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getRouteApi } from '@tanstack/react-router'
 import { type Table } from '@tanstack/react-table'
 import { ArrowUpDown, CircleArrowUp, Download, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { sleep } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -20,55 +21,105 @@ import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-ta
 
 import { priorities, statuses } from '../data/data'
 import { type Task } from '../data/schema'
+import { getTasksByIdsFn, updateTasksFn } from '../server/actions'
 import { TasksMultiDeleteDialog } from './tasks-multi-delete-dialog'
 
 type DataTableBulkActionsProps<TData> = {
   table: Table<TData>
 }
 
+const route = getRouteApi('/_authenticated/tasks/')
+
 export function DataTableBulkActions<TData>({
   table,
 }: DataTableBulkActionsProps<TData>) {
+  const queryClient = useQueryClient()
+  const search = route.useSearch()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const selectedRows = table.getFilteredSelectedRowModel().rows
 
+  const bulkUpdateMutation = useMutation({
+    mutationFn: updateTasksFn,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', search] })
+      const count = variables.data.ids.length
+      const field = variables.data.data.status ? 'status' : 'priority'
+      const value = variables.data.data.status || variables.data.data.priority
+      toast.success(
+        `Updated ${field} to "${value}" for ${count} ${
+          count > 1 ? 'tasks' : 'task'
+        } successfully`,
+      )
+      table.resetRowSelection()
+    },
+    onError: (error) => {
+      toast.error('Failed to update tasks: ' + error.message)
+    },
+  })
+
   const handleBulkStatusChange = (status: string) => {
-    const selectedTasks = selectedRows.map((row) => row.original as Task)
-    toast.promise(sleep(2000), {
-      loading: 'Updating status...',
-      success: () => {
-        table.resetRowSelection()
-        return `Status updated to "${status}" for ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}.`
+    const ids = selectedRows.map((row) => (row.original as Task).id)
+    bulkUpdateMutation.mutate({
+      data: {
+        ids,
+        data: { status },
       },
-      error: 'Error',
     })
-    table.resetRowSelection()
   }
 
   const handleBulkPriorityChange = (priority: string) => {
-    const selectedTasks = selectedRows.map((row) => row.original as Task)
-    toast.promise(sleep(2000), {
-      loading: 'Updating priority...',
-      success: () => {
-        table.resetRowSelection()
-        return `Priority updated to "${priority}" for ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}.`
+    const ids = selectedRows.map((row) => (row.original as Task).id)
+    bulkUpdateMutation.mutate({
+      data: {
+        ids,
+        data: { priority },
       },
-      error: 'Error',
     })
-    table.resetRowSelection()
   }
 
   const handleBulkExport = () => {
-    const selectedTasks = selectedRows.map((row) => row.original as Task)
-    toast.promise(sleep(2000), {
-      loading: 'Exporting tasks...',
-      success: () => {
+    const ids = selectedRows.map((row) => (row.original as Task).id)
+
+    toast.promise(
+      (async () => {
+        const tasks = await getTasksByIdsFn({ data: { ids } })
+
+        const headers = ['id', 'code', 'title', 'status', 'label', 'priority']
+        const csvData = tasks.map((task) =>
+          headers
+            .map((header) => {
+              const value = task[header as keyof (typeof tasks)[0]] || ''
+              const stringValue =
+                typeof value === 'string' ? value : JSON.stringify(value)
+              return `"${stringValue.replace(/"/g, '""')}"`
+            })
+            .join(','),
+        )
+
+        const csvContent = [headers.join(','), ...csvData].join('\n')
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.setAttribute('href', url)
+        link.setAttribute(
+          'download',
+          `tasks-export-${new Date().toISOString().split('T')[0]}.csv`,
+        )
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+
         table.resetRowSelection()
-        return `Exported ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''} to CSV.`
+        return `Exported ${tasks.length} task${tasks.length > 1 ? 's' : ''} successfully.`
+      })(),
+      {
+        loading: 'Preparing export...',
+        success: (msg) => msg,
+        error: 'Failed to export tasks.',
       },
-      error: 'Error',
-    })
-    table.resetRowSelection()
+    )
   }
 
   return (

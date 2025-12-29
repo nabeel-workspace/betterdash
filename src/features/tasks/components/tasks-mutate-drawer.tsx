@@ -1,8 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
+import { getRouteApi } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -26,6 +28,9 @@ import {
 import { SelectDropdown } from '@/components/select-dropdown'
 
 import { type Task } from '../data/schema'
+import { createTaskFn, updateTaskFn } from '../server/actions'
+
+const route = getRouteApi('/_authenticated/tasks/')
 
 type TaskMutateDrawerProps = {
   open: boolean
@@ -47,6 +52,8 @@ export function TasksMutateDrawer({
   currentRow,
 }: TaskMutateDrawerProps) {
   const isUpdate = !!currentRow
+  const queryClient = useQueryClient()
+  const search = route.useSearch()
 
   const form = useForm<TaskForm>({
     resolver: zodResolver(formSchema),
@@ -59,10 +66,30 @@ export function TasksMutateDrawer({
   })
 
   const onSubmit = (data: TaskForm) => {
-    // do something with the form data
-    onOpenChange(false)
-    form.reset()
-    showSubmittedData(data)
+    toast.promise(
+      async () => {
+        if (isUpdate && currentRow) {
+          await updateTaskFn({ data: { id: currentRow.id, data } })
+        } else {
+          await createTaskFn({ data })
+        }
+      },
+      {
+        loading: isUpdate ? 'Updating task...' : 'Creating task...',
+        success: () => {
+          queryClient.invalidateQueries({ queryKey: ['tasks', search] })
+          onOpenChange(false)
+          form.reset()
+          return isUpdate
+            ? 'Task updated successfully'
+            : 'Task created successfully'
+        },
+        error: (error) => {
+          console.error(error)
+          return 'Failed to save task'
+        },
+      },
+    )
   }
 
   return (
@@ -204,8 +231,12 @@ export function TasksMutateDrawer({
           <SheetClose asChild>
             <Button variant="outline">Close</Button>
           </SheetClose>
-          <Button form="tasks-form" type="submit">
-            Save changes
+          <Button
+            form="tasks-form"
+            type="submit"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? 'Saving...' : 'Save changes'}
           </Button>
         </SheetFooter>
       </SheetContent>
