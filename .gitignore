@@ -14,3 +14,7 @@ todos.json
 
 # Local Netlify folder
 .netlify
+
+# Database and log files
+*.db
+*.log
