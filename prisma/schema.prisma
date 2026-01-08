@@ -9,18 +9,18 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  id               String      @id @default(cuid())
   name             String
-  email            String
+  email            String      @unique
   emailVerified    Boolean     @default(false)
   image            String?
   createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @default(now()) @updatedAt
+  updatedAt        DateTime    @updatedAt
   sessions         Session[]
   accounts         Account[]
   role             String?
@@ -31,36 +31,30 @@ model User {
   twofactors       TwoFactor[]
   isAnonymous      Boolean?    @default(false)
   passkeys         Passkey[]
-  username         String?
+  username         String?     @unique
   displayUsername  String?
-
-  @@unique([email])
-  @@unique([username])
-  @@map("user")
 }
 
 model Session {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  id             String   @id @default(cuid())
   expiresAt      DateTime
-  token          String
+  token          String   @unique
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   ipAddress      String?
   userAgent      String?
-  userId         String   @db.ObjectId
+  userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   impersonatedBy String?
 
-  @@unique([token])
   @@index([userId])
-  @@map("session")
 }
 
 model Account {
-  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  id                    String    @id @default(cuid())
   accountId             String
   providerId            String
-  userId                String    @db.ObjectId
+  userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
@@ -73,38 +67,35 @@ model Account {
   updatedAt             DateTime  @updatedAt
 
   @@index([userId])
-  @@map("account")
 }
 
 model Verification {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String   @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
+  updatedAt  DateTime @updatedAt
 
   @@index([identifier])
-  @@map("verification")
 }
 
 model TwoFactor {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(cuid())
   secret      String
   backupCodes String
-  userId      String @db.ObjectId
+  userId      String
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([secret])
   @@index([userId])
-  @@map("twoFactor")
 }
 
 model Passkey {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  id           String    @id @default(cuid())
   name         String?
   publicKey    String
-  userId       String    @db.ObjectId
+  userId       String
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   credentialID String
   counter      Int
@@ -116,11 +107,10 @@ model Passkey {
 
   @@index([userId])
   @@index([credentialID])
-  @@map("passkey")
 }
 
 model Task {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(cuid())
   code      String   @unique
   title     String
   status    String
@@ -128,6 +118,4 @@ model Task {
   priority  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@map("task")
 }
