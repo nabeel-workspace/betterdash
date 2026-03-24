@@ -6,6 +6,7 @@ const envSchema = z.object({
   GITHUB_CLIENT_ID: z.string().min(1),
   GITHUB_CLIENT_SECRET: z.string().min(1),
   RESEND_API_KEY: z.string().min(1).optional(),
+  BETTER_AUTH_SECRET: z.string().min(32),
 })
 
 export type Env = z.infer<typeof envSchema>

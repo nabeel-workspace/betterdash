@@ -9,14 +9,16 @@ import {
 } from 'better-auth/plugins'
 
 import { getMinimalEmailHtml } from './emals'
-import { ac, adminRole, userRole } from './permissions'
 import { env } from './env.server'
+import { ac, adminRole, userRole } from './permissions'
 import prisma from './prisma'
 import { SendMail } from './resend'
 
 const appUrl = env.BETTER_AUTH_URL
 
 export const auth = betterAuth({
+  secret: env.BETTER_AUTH_SECRET,
+  trustedOrigins: [env.BETTER_AUTH_URL],
   database: prismaAdapter(prisma, {
     provider: 'mongodb',
   }),
@@ -28,12 +30,34 @@ export const auth = betterAuth({
     },
   },
 
+  rateLimit: {
+    enabled: true,
+    storage: 'database',
+    customRules: {
+      '/api/auth/sign-in/email': { window: 60, max: 5 },
+      '/api/auth/sign-up/email': { window: 60, max: 3 },
+    },
+  },
+
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+    cookieCache: {
+      enabled: true,
+      maxAge: 300,
+      strategy: 'jwe',
+    },
+  },
+
+  account: {
+    encryptOAuthTokens: true,
+  },
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
     sendResetPassword: async (data) => {
       const resetUrl = `${appUrl}/reset-password?token=${data.token}`
-
       const emailHtml = getMinimalEmailHtml({
         title: 'Reset Your Password',
         username: data.user.name,
@@ -41,7 +65,6 @@ export const auth = betterAuth({
         buttonText: 'Reset Password',
         link: resetUrl,
       })
-
       await SendMail({
         to: data.user.email,
         subject: 'Reset Your Password',
@@ -60,7 +83,6 @@ export const auth = betterAuth({
         buttonText: 'Verify Email',
         link: data.url,
       })
-
       void SendMail({
         to: data.user.email,
         subject: 'Final Step: Verify Your New Email Address',
@@ -143,13 +165,7 @@ export const auth = betterAuth({
         return !reservedWords.includes(username.toLowerCase())
       },
     }),
-    adminPlugin({
-      ac,
-      roles: {
-        admin: adminRole,
-        user: userRole,
-      },
-    }),
+    adminPlugin({ ac, roles: { admin: adminRole, user: userRole } }),
     passkey(),
     twoFactor({
       issuer: 'BetterDash',
@@ -162,7 +178,6 @@ export const auth = betterAuth({
             buttonText: 'Login Now',
             link: `${appUrl}/otp`,
           })
-
           void SendMail({
             to: user.email,
             subject: 'Your verification code',
@@ -177,14 +192,21 @@ export const auth = betterAuth({
         storeBackupCodes: 'encrypted',
       },
     }),
-    anonymous({
-      emailDomainName: 'no-email.betterdash.com',
-    }),
+    anonymous({ emailDomainName: 'no-email.betterdash.com' }),
   ],
   advanced: {
-    trustedOrigins: [env.BETTER_AUTH_URL],
-    database: {
-      generateId: false,
+    database: { generateId: false },
+    ipAddress: {
+      ipAddressHeaders: ['x-forwarded-for', 'x-real-ip'],
+      disableIpTracking: false,
+    },
+    backgroundTasks: {
+      handler: (promise: Promise<any>) => {
+        // Platform-specific handler:
+        // Vercel: waitUntil(promise)
+        // Nitro: Use event.waitUntil if passing event or platform specifics
+        void promise.catch(console.error)
+      },
     },
   },
 })
