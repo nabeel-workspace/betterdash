@@ -36,6 +36,11 @@
       "sourceType": "github",
       "computedHash": "c2588da4b3c084ad762e28388d36bfafbbe2c1870d52a0f98d6e4095ee01b26d"
     },
+    "marketing-psychology": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "computedHash": "5b8654c4d6db63d9da55f7cd56f2babd92e602b089e96a86ef38c7f547f51d52"
+    },
     "tanstack-start-best-practices": {
       "source": "deckardger/tanstack-agent-skills",
       "sourceType": "github",
