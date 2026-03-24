@@ -3,7 +3,7 @@ import { Link, useSearch } from '@tanstack/react-router'
 import { Loader2, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth.client'
 import { Button } from '@/components/ui/button'
 import {
   Card,

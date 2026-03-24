@@ -22,7 +22,7 @@ import {
 
 import { labels } from '../data/data'
 import { taskSchema } from '../data/schema'
-import { updateTaskFn } from '../server/actions'
+import { updateTaskFn } from '../server/tasks.functions'
 import { useTasks } from './tasks-provider'
 
 const route = getRouteApi('/_authenticated/tasks/')

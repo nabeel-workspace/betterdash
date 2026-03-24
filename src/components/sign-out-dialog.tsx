@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth.client'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
 interface SignOutDialogProps {

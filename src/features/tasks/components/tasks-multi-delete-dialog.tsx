@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
 import { type Task } from '../data/schema'
-import { deleteTasksFn } from '../server/actions'
+import { deleteTasksFn } from '../server/tasks.functions'
 
 type TaskMultiDeleteDialogProps<TData> = {
   open: boolean

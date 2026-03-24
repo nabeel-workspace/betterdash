@@ -8,7 +8,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth.client'
 import useDialogState from '@/hooks/use-dialog-state'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {

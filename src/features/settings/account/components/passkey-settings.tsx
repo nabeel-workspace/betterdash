@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { Fingerprint, Loader2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth.client'
 import { SessionProps } from '@/lib/props'
 import { Button } from '@/components/ui/button'
 import {

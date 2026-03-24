@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { importTasksFn } from '../server/actions'
+import { importTasksFn } from '../server/tasks.functions'
 
 const route = getRouteApi('/_authenticated/tasks/')
 

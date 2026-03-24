@@ -30,7 +30,7 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 
 import { priorities, statuses } from '../data/data'
-import { getTasksFn, seedTasksFn } from '../server/actions'
+import { getTasksFn, seedTasksFn } from '../server/tasks.functions'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { tasksColumns as columns } from './tasks-columns'
 

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth.client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {

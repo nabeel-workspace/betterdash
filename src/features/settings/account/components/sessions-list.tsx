@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { Laptop, Loader2, Monitor, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth.client'
 import { SessionProps } from '@/lib/props'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

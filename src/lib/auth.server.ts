@@ -10,10 +10,11 @@ import {
 
 import { getMinimalEmailHtml } from './emals'
 import { ac, adminRole, userRole } from './permissions'
+import { env } from './env.server'
 import prisma from './prisma'
 import { SendMail } from './resend'
 
-const appUrl = process.env.BETTER_AUTH_URL
+const appUrl = env.BETTER_AUTH_URL
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -22,8 +23,8 @@ export const auth = betterAuth({
 
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
     },
   },
 
@@ -156,7 +157,7 @@ export const auth = betterAuth({
     }),
   ],
   advanced: {
-    trustedOrigins: [process.env.BETTER_AUTH_URL!],
+    trustedOrigins: [env.BETTER_AUTH_URL],
     database: {
       generateId: false,
     },

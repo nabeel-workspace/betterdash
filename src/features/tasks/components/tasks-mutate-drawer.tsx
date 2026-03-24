@@ -28,7 +28,7 @@ import {
 import { SelectDropdown } from '@/components/select-dropdown'
 
 import { type Task } from '../data/schema'
-import { createTaskFn, updateTaskFn } from '../server/actions'
+import { createTaskFn, updateTaskFn } from '../server/tasks.functions'
 
 const route = getRouteApi('/_authenticated/tasks/')
 

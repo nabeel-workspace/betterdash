@@ -21,7 +21,7 @@ import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-ta
 
 import { priorities, statuses } from '../data/data'
 import { type Task } from '../data/schema'
-import { getTasksByIdsFn, updateTasksFn } from '../server/actions'
+import { getTasksByIdsFn, updateTasksFn } from '../server/tasks.functions'
 import { TasksMultiDeleteDialog } from './tasks-multi-delete-dialog'
 
 type DataTableBulkActionsProps<TData> = {

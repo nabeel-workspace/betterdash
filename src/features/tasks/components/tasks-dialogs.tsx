@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
-import { deleteTaskFn } from '../server/actions'
+import { deleteTaskFn } from '../server/tasks.functions'
 import { TasksImportDialog } from './tasks-import-dialog'
 import { TasksMutateDrawer } from './tasks-mutate-drawer'
 import { useTasks } from './tasks-provider'
