@@ -21,8 +21,7 @@ export function Totp() {
             Two-factor Authentication
           </CardTitle>
           <CardDescription>
-            Please enter the authentication code. <br /> We have sent the
-            authentication code to your email.
+            Please enter the verification code from your authenticator app.
           </CardDescription>
         </CardHeader>
         <CardContent>

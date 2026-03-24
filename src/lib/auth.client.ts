@@ -13,7 +13,11 @@ export const authClient = createAuthClient({
     adminClient(),
     passkeyClient(),
     usernameClient(),
-    twoFactorClient(),
+    twoFactorClient({
+      onTwoFactorRedirect() {
+        window.location.href = '/totp'
+      },
+    }),
     anonymousClient(),
   ],
 })

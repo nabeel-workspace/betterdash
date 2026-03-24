@@ -317,7 +317,7 @@ export function TwoFactorDisable() {
         <CardAction>
           <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-              <Button variant="destructive" onClick={handleDisable2FA}>
+              <Button variant="destructive">
                 Disable 2FA
               </Button>
             </DialogTrigger>

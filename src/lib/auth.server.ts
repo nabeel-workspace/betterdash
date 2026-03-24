@@ -151,7 +151,32 @@ export const auth = betterAuth({
       },
     }),
     passkey(),
-    twoFactor(),
+    twoFactor({
+      issuer: 'BetterDash',
+      otpOptions: {
+        sendOTP: async ({ user, otp }) => {
+          const emailHtml = getMinimalEmailHtml({
+            title: 'Your Verification Code',
+            username: user.name,
+            body: `Your verification code is: **${otp}**`,
+            buttonText: 'Login Now',
+            link: `${appUrl}/otp`,
+          })
+
+          void SendMail({
+            to: user.email,
+            subject: 'Your verification code',
+            text: `Your code is: ${otp}`,
+            html: emailHtml,
+          })
+        },
+      },
+      backupCodeOptions: {
+        amount: 10,
+        length: 10,
+        storeBackupCodes: 'encrypted',
+      },
+    }),
     anonymous({
       emailDomainName: 'no-email.betterdash.com',
     }),

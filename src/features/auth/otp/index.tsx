@@ -21,8 +21,8 @@ export function Otp() {
             Two-factor Authentication
           </CardTitle>
           <CardDescription>
-            Please enter the authentication code. <br /> We have sent the
-            authentication code to your email.
+            Please enter the 6-digit verification code we just sent to your
+            email address.
           </CardDescription>
         </CardHeader>
         <CardContent>
