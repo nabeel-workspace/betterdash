@@ -131,3 +131,13 @@ model Task {
 
   @@map("task")
 }
+
+model RateLimit {
+  id          String @id @map("_id")
+  key         String
+  count       Int
+  lastRequest BigInt
+
+  @@unique([key])
+  @@map("rateLimit")
+}
