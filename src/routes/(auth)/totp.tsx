@@ -10,7 +10,7 @@ export const Route = createFileRoute('/(auth)/totp')({
   },
   loader: ({ context }) => {
     if (context.session) {
-      throw redirect({ to: '/' })
+      throw redirect({ to: '/dashboard' })
     }
     return context
   },

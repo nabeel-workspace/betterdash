@@ -10,7 +10,7 @@ export const Route = createFileRoute('/(auth)/sign-in-2')({
   },
   loader: ({ context }) => {
     if (context.session) {
-      throw redirect({ to: '/' })
+      throw redirect({ to: '/dashboard' })
     }
     return context
   },

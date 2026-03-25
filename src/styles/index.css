@@ -38,6 +38,10 @@
   }
 }
 
+@utility glass-card {
+  @apply bg-background/60 backdrop-blur-md border border-white/10 shadow-xl;
+}
+
 @utility container {
   margin-inline: auto;
   padding-inline: 2rem;
