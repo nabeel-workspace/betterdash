@@ -1,12 +1,7 @@
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import {
-  admin as adminPlugin,
-  anonymous,
-  twoFactor,
-  username,
-} from 'better-auth/plugins'
+import { admin as adminPlugin, twoFactor, username } from 'better-auth/plugins'
 
 import { getMinimalEmailHtml } from './emals'
 import { env } from './env.server'
@@ -192,7 +187,6 @@ export const auth = betterAuth({
         storeBackupCodes: 'encrypted',
       },
     }),
-    anonymous({ emailDomainName: 'no-email.betterdash.com' }),
   ],
   advanced: {
     database: { generateId: false },

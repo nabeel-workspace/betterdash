@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { IconGithub } from '@/assets/brand-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { HatGlasses, Loader2, LogIn, SquareAsterisk } from 'lucide-react'
+import { Loader2, LogIn, SquareAsterisk } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -41,9 +41,9 @@ export function UserAuthForm({
   ...props
 }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [loading, setLoading] = useState<
-    'email' | 'social' | 'passkey' | 'anonymous' | null
-  >(null)
+  const [loading, setLoading] = useState<'email' | 'social' | 'passkey' | null>(
+    null,
+  )
   const navigate = useNavigate()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -163,36 +163,6 @@ export function UserAuthForm({
     )
   }
 
-  function AnonymousSignIn() {
-    toast.promise(
-      authClient.signIn.anonymous(
-        {},
-        {
-          onRequest: () => {
-            setIsLoading(true)
-            setLoading('anonymous')
-          },
-          onResponse: () => {
-            setIsLoading(false)
-            setLoading(null)
-          },
-          onSuccess: () => {
-            navigate({ to: '/', replace: true })
-          },
-          onError: (error) => {
-            const message = error.error.message || error.error.statusText
-            throw new Error(message)
-          },
-        },
-      ),
-      {
-        loading: `Signing in anonymously...`,
-        success: () => `Welcome back!`,
-        error: (err) => err.message || 'Something went wrong',
-      },
-    )
-  }
-
   return (
     <Form {...form}>
       <form
@@ -280,20 +250,6 @@ export function UserAuthForm({
             <SquareAsterisk className="h-4 w-4" />
           )}
           Continue with Passkey
-        </Button>
-
-        <Button
-          variant="outline"
-          type="button"
-          disabled={isLoading}
-          onClick={() => AnonymousSignIn()}
-        >
-          {loading === 'anonymous' ? (
-            <Loader2 className="animate-spin" />
-          ) : (
-            <HatGlasses className="h-4 w-4" />
-          )}
-          Continue anonymously
         </Button>
       </form>
     </Form>

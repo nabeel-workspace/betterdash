@@ -1,7 +1,6 @@
 import { passkeyClient } from '@better-auth/passkey/client'
 import {
   adminClient,
-  anonymousClient,
   twoFactorClient,
   usernameClient,
 } from 'better-auth/client/plugins'
@@ -18,6 +17,5 @@ export const authClient = createAuthClient({
         window.location.href = '/totp'
       },
     }),
-    anonymousClient(),
   ],
 })
