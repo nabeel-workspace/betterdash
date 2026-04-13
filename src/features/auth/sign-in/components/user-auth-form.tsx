@@ -22,9 +22,7 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 
 const formSchema = z.object({
-  email: z.email({
-    error: (iss) => (iss.input === '' ? 'Please enter your email' : undefined),
-  }),
+  email: z.string().min(1, 'Please enter your email or username'),
   password: z
     .string()
     .min(1, 'Please enter your password')
@@ -55,8 +53,17 @@ export function UserAuthForm({
   })
 
   function onSubmit(data: z.infer<typeof formSchema>) {
+    const isEmail = data.email.includes('@')
+    const signInMethod = isEmail
+      ? authClient.signIn.email
+      : (authClient.signIn as any).username
+
+    const inputData = isEmail
+      ? { email: data.email, password: data.password }
+      : { username: data.email, password: data.password }
+
     toast.promise(
-      authClient.signIn.email(data, {
+      signInMethod(inputData, {
         onRequest: () => {
           setIsLoading(true)
           setLoading('email')
@@ -65,7 +72,7 @@ export function UserAuthForm({
           setIsLoading(false)
           setLoading(null)
         },
-        onSuccess: (ctx) => {
+        onSuccess: (ctx: any) => {
           if (ctx.data.twoFactorRedirect) {
             navigate({ to: '/totp' })
             return
@@ -73,7 +80,7 @@ export function UserAuthForm({
           const targetPath = redirectTo || '/'
           navigate({ to: targetPath, replace: true })
         },
-        onError: (error) => {
+        onError: (error: any) => {
           const message = error.error.message || error.error.statusText
 
           form.setError('email', { message })
@@ -84,7 +91,7 @@ export function UserAuthForm({
       }),
       {
         loading: 'Signing in...',
-        success: () => `Welcome back, ${data.email}!`,
+        success: () => `Welcome back!`,
         error: (err) => err.message || 'Something went wrong',
       },
     )
@@ -175,9 +182,9 @@ export function UserAuthForm({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email or Username</FormLabel>
               <FormControl>
-                <Input placeholder="name@example.com" {...field} />
+                <Input placeholder="name@example.com or username" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
