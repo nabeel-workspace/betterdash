@@ -133,7 +133,7 @@ model Task {
 }
 
 model RateLimit {
-  id          String @id @map("_id")
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   key         String
   count       Int
   lastRequest BigInt
