@@ -1,4 +1,5 @@
-import { Link } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
+import { authClient } from '@/lib/auth.client'
 
 import {
   Card,
@@ -13,6 +14,13 @@ import { AuthLayout } from '../auth-layout'
 import { TotpForm } from './components/otp-form'
 
 export function Totp() {
+  const navigate = useNavigate()
+
+  const handleRestart = async () => {
+    await authClient.signOut()
+    navigate({ to: '/sign-in' })
+  }
+
   return (
     <AuthLayout>
       <Card className="gap-4">
@@ -29,14 +37,14 @@ export function Totp() {
         </CardContent>
         <CardFooter>
           <p className="text-muted-foreground px-8 text-center text-sm">
-            Haven't received it?{' '}
-            <Link
-              to="/sign-in"
+            Want to use another method?{' '}
+            <button
+              onClick={handleRestart}
               className="hover:text-primary underline underline-offset-4"
             >
-              Resend a new code.
-            </Link>
-            .
+              Back to sign-in
+            </button>
+            . 
           </p>
         </CardFooter>
       </Card>
